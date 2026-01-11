@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DXN Pot</title>
+  <meta name="description" content="DXN Pot — weighted lottery paid in ETH fees only." />
+  <link rel="icon" type="image/png" href="favicon.png?v=1" />
+
+  <!-- Premium fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#050814;
+      --cardTop: rgba(13, 19, 34, .78);
+      --cardBot: rgba(2, 6, 23, .72);
+      --stroke: rgba(255,255,255,.085);
+      --stroke2: rgba(255,255,255,.06);
+      --txt:#e5e7eb;
+      --muted:#a3aab7;
+      --muted2:#7c8596;
+
+      --yellow:#facc15;
+      --yellow2:#f59e0b;
+      --black:#000;
+
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --shadow2: 0 10px 28px rgba(0,0,0,.35);
+      --r16: 18px;
+      --r12: 14px;
+      --r10: 12px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--txt);
+      background: url("dxn-bg.png") center / cover no-repeat fixed;
+      padding: 22px 22px;
+    }
+
+    /* subtle top glow */
+    body:before{
+      content:"";
+      position:fixed; inset:-200px -200px auto -200px;
+      height:420px;
+      background: radial-gradient(closest-side, rgba(250,204,21,.16), transparent 65%);
+      pointer-events:none;
+      z-index:-1;
+      filter: blur(2px);
+    }
+    
+    .frame{
+    width: min(1440px, calc(100vw - 44px));
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 26px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(2,6,23,.38);
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.03);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+      position: relative;
+    }
+    .frame::after{
+        content:"";
+        position:absolute;
+        inset: 0;
+        border-radius: 26px;
+        pointer-events:none;
+
+        /* dbxen-style edge glow */
+        box-shadow:
+            0 0 0 1px rgba(255,255,255,.06),
+            0 0 120px rgba(250,204,21,.18),
+            inset 0 0 60px rgba(250,204,21,.08);
+        }
+
+    /* top bar */
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom: 18px;
+    }
+
+    .tabs{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .tab{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(2,6,23,.55);
+      color: var(--txt);
+      text-decoration:none;
+      font-weight: 800;
+      letter-spacing: .2px;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease, opacity .12s ease;
+    }
+    .tab:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.14); }
+    .tab.active{
+      background: linear-gradient(180deg, var(--yellow), var(--yellow2));
+      color: #000;
+      border: 0;
+      box-shadow: 0 10px 22px rgba(250,204,21,.18);
+    }
+
+    .pill{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(2,6,23,.55);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+      min-height: 44px;
+      white-space:nowrap;
+    }
+    .dot{
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: #60a5fa;
+      box-shadow: 0 0 14px rgba(96,165,250,.45);
+    }
+
+    .mono{ font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    .btn-yellow{
+      background: linear-gradient(180deg, var(--yellow), var(--yellow2));
+      border: 0;
+      color: var(--black);
+      font-weight: 900;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor:pointer;
+      height: 40px;
+      box-shadow: 0 10px 22px rgba(250,204,21,.18);
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease, opacity .12s ease;
+    }
+    .btn-yellow:hover{ transform: translateY(-1px); filter: brightness(1.02); }
+    .btn-yellow:active{ transform: translateY(0px); filter: brightness(.98); }
+    .btn-yellow[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
+
+    /* cards */
+    .card{
+      background: linear-gradient(180deg, var(--cardTop), var(--cardBot));
+      border: 1px solid var(--stroke);
+      border-radius: var(--r16);
+      padding: 18px;
+      box-shadow: var(--shadow2), inset 0 0 0 1px rgba(255,255,255,.03);
+    }
+
+    /* HERO */
+    .hero{
+        padding: 26px;
+        border-radius: 22px;
+        }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-1px;
+      background:
+        radial-gradient(600px 240px at 25% 0%, rgba(250,204,21,.14), transparent 70%),
+        radial-gradient(600px 240px at 80% 40%, rgba(96,165,250,.10), transparent 70%);
+      pointer-events:none;
+      opacity:.9;
+    }
+    .hero > *{ position:relative; }
+
+    .hero-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap: 14px;
+      flex-wrap:wrap;
+    }
+
+    .title{
+      margin:0;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+      line-height: 1.1;
+    }
+
+    .sub{
+      margin-top: 8px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .meta{
+      color: var(--muted2);
+      font-size: 13px;
+      line-height: 1.7;
+      text-align:right;
+    }
+    .meta b{ color: var(--yellow); font-weight: 900; }
+
+    .prizeRow{
+      margin-top: 14px;
+      display:flex;
+      align-items:baseline;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+
+    .prize{ font-size: clamp(44px, 4.2vw, 66px); }
+    .prize small{
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--muted2);
+      letter-spacing: .25px;
+    }
+
+    .hero-actions{
+      margin-top: 14px;
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      flex-wrap:wrap;
+      max-width: 420px;
+    }
+
+    .fine{
+      color: var(--muted2);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .fine b{ color: var(--yellow); }
+
+    /* countdown pill */
+    .countdown{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke2);
+      background: rgba(2,6,23,.36);
+    }
+    .countdown .k{ color: var(--muted2); font-size: 12px; font-weight: 800; letter-spacing:.25px; }
+    .countdown .v{ color: var(--yellow); font-weight: 900; }
+
+    /* wheel (inside hero) */
+    .wheelWrap{
+      margin-top: 16px;
+      border: 1px solid var(--stroke2);
+      background: rgba(2,6,23,.32);
+      border-radius: var(--r16);
+      padding: 14px;
+      display:none;
+    }
+
+    .wheelRow{
+      display:flex;
+      gap: 14px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .wheel{
+      width: 150px;
+      height: 150px;
+      border-radius: 999px;
+      border: 1px solid rgba(250,204,21,.55);
+      box-shadow: 0 14px 28px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
+      position: relative;
+      background:
+        conic-gradient(
+          rgba(250,204,21,.22),
+          rgba(255,255,255,.06),
+          rgba(96,165,250,.12),
+          rgba(255,255,255,.06),
+          rgba(250,204,21,.16)
+        );
+    }
+    .wheel:after{
+      content:"";
+      position:absolute;
+      top:-12px;
+      left:50%;
+      transform: translateX(-50%);
+      width:0; height:0;
+      border-left:10px solid transparent;
+      border-right:10px solid transparent;
+      border-bottom:16px solid rgba(250,204,21,.95);
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.45));
+    }
+
+    .spinText{
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing:.2px;
+    }
+    .winnerText{
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--txt);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+    .winnerText b{ color: var(--yellow); font-weight: 900; }
+
+    /* grid below */
+    .grid{
+        margin-top: 16px;
+        gap: 14px;
+        grid-template-columns: repeat(3, minmax(260px, 1fr));
+        }
+    .label{
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing:.2px;
+      margin-bottom: 10px;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+
+    .lastRow{
+        margin-top: 14px;
+        display:grid;
+        grid-template-columns: 1fr;
+        }
+
+
+    .input{
+      width: 170px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(2,6,23,.42);
+      color: var(--txt);
+      font-size: 14px;
+      font-weight: 700;
+      outline:none;
+      padding: 0 12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+      transition: border-color .12s ease, transform .12s ease;
+    }
+    .input:focus{ border-color: rgba(250,204,21,.35); transform: translateY(-1px); }
+
+    .hint{
+      margin-top: 10px;
+      color: var(--muted2);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .stats{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .stats .line{
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      border-bottom: 1px dashed rgba(255,255,255,.07);
+      padding-bottom: 8px;
+    }
+    .stats .line:last-child{ border-bottom:0; padding-bottom:0; }
+    .stats b{ color: var(--yellow); font-weight: 900; }
+
+    @media (max-width: 1100px){
+        .grid{ grid-template-columns: 1fr; }
+        
+      .meta{ text-align:left; }
+      .prize{ font-size: 46px; }
+    }
+
+    .below{
+        margin-top: 14px;
+        display:grid;
+        grid-template-columns: repeat(3, minmax(0,1fr));
+        gap: 14px;
+        }
+
+        @media (max-width: 960px){
+        .below{ grid-template-columns: 1fr; }
+        }
+
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+
+    <div class="topbar">
+      <div class="tabs">
+        <a class="tab active" href="pot.html">DXN POT</a>
+        <a class="tab" href="revisedgithub.html">BURN XEN</a>
+      </div>
+
+      <div class="pill">
+        <span class="dot"></span>
+        <span id="ethBal" class="mono" style="font-weight:800;">— ETH</span>
+        <span id="addrShort" class="mono" style="opacity:.85;">Not connected</span>
+        <button id="connectBtn" class="btn-yellow" style="height:40px;padding:0 12px;border-radius:12px;font-weight:900;">
+          Connect
+        </button>
+      </div>
+    </div>
+
+    <!-- HERO (Lottery) -->
+    <div class="card hero">
+      <div class="hero-top">
+        <div>
+          <h1 class="title">DXN Pot</h1>
+          <div class="sub">Weighted lottery • Prize paid in ETH fees only</div>
+        </div>
+
+        <div class="meta">
+          <div>Current Cycle: <b id="currentCycle">—</b></div>
+          <div>Last Draw: <b id="lastDrawCycle">—</b></div>
+        </div>
+      </div>
+
+      <div class="prizeRow">
+        <div class="prize mono"><span id="potEth">—</span></div>
+        <small class="mono">ETH prize</small>
+
+        <div class="countdown" style="margin-left:auto;">
+          <span class="k">NEXT DRAW IN</span>
+          <span id="nextDraw" class="v mono">—</span>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button id="runBtn" class="btn-yellow" style="min-width:190px;height:46px;border-radius:14px;">
+          Run Lottery
+        </button>
+
+        <div class="fine">
+          One draw per DBXen cycle • If no one draws, ETH continues accumulating
+          <br/>
+          Once per cycle • <b>96.31%</b> winner • <b>3.69%</b> dev bucket
+        </div>
+      </div>
+    </div>
+
+    <!-- BELOW HERO -->
+    <div class="below">
+      <div class="card">
+        <div class="label">My Position</div>
+        <div class="stats">
+          <div class="line"><span>My Deposit</span> <b id="myDep" class="mono">— DXN</b></div>
+          <div class="line"><span>My Weight</span> <b id="myWeight" class="mono">— %</b></div>
+          <div class="line"><span>Estimated Odds</span> <b id="myOdds" class="mono">— %</b></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label">Deposit DXN</div>
+        <div class="row">
+          <input id="depAmt" class="input mono" placeholder="0.0" />
+          <button id="depBtn" class="btn-yellow" style="height:44px;border-radius:14px;">
+            Deposit & Stake
+          </button>
+        </div>
+        <div class="hint">Deposits activate next cycle.</div>
+      </div>
+
+      <div class="card">
+        <div class="label">Withdraw DXN</div>
+        <div class="row">
+          <input id="wdAmt" class="input mono" placeholder="0.0" />
+          <button id="wdBtn" class="btn-yellow" style="height:44px;border-radius:14px;">
+            Withdraw
+          </button>
+        </div>
+        <div class="hint">Only unlocked DXN is withdrawable.</div>
+      </div>
+    </div>
+
+    <!-- LAST RESULT (single card, not duplicating deposit/withdraw) -->
+    <div class="lastRow">
+      <div class="card">
+        <div class="label">Last Result</div>
+        <div class="stats">
+          <div class="line"><span>Last Draw Cycle</span> <b id="lastDrawCycle2" class="mono">—</b></div>
+          <div class="line"><span>Winner</span> <b id="lastWinner" class="mono">—</b></div>
+          <div class="line"><span>Payout</span> <b id="lastPayout" class="mono">—</b></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+
+
+  <script>
+    // VISUAL MOCK ONLY (no contracts yet)
+    const connectBtn = document.getElementById("connectBtn");
+    const runBtn = document.getElementById("runBtn");
+    const wheelWrap = document.getElementById("wheelWrap");
+    const wheel = document.getElementById("wheel");
+    const spinText = document.getElementById("spinText");
+    const winnerText = document.getElementById("winnerText");
+    const nextDrawEl = document.getElementById("nextDraw");
+
+    // Demo values so it looks alive
+    document.getElementById("potEth").textContent = "0.00000";
+    document.getElementById("currentCycle").textContent = "—";
+    document.getElementById("lastDrawCycle").textContent = "—";
+    document.getElementById("myDep").textContent = "— DXN";
+    document.getElementById("myWeight").textContent = "— %";
+    document.getElementById("myOdds").textContent = "— %";
+    document.getElementById("devBucket").textContent = "— ETH";
+
+    // Fake countdown (placeholder)
+    function startFakeCountdown(seconds){
+      let s = seconds;
+      function tick(){
+        if (s < 0) s = 0;
+        const h = String(Math.floor(s / 3600)).padStart(2,"0");
+        const m = String(Math.floor((s % 3600) / 60)).padStart(2,"0");
+        const sec = String(s % 60).padStart(2,"0");
+        nextDrawEl.textContent = `${h}:${m}:${sec}`;
+        s--;
+      }
+      tick();
+      setInterval(tick, 1000);
+    }
+    startFakeCountdown(6 * 60 * 60);
+
+    connectBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("Wire wallet later. Visual mock first.");
+    });
+
+    runBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      wheelWrap.style.display = "block";
+      runBtn.disabled = true;
+
+      spinText.textContent = "Spinning…";
+      winnerText.innerHTML = 'Winner: <b>—</b>';
+
+      // reset transition so multiple clicks feel right
+      wheel.style.transition = "none";
+      wheel.style.transform = "rotate(0deg)";
+      wheel.offsetHeight; // reflow
+
+      const spins = 7 + Math.random() * 4;        // 7–11 turns
+      const endDeg = (spins * 360) + (Math.random() * 360);
+      wheel.style.transition = "transform 3.8s cubic-bezier(.12,.78,.12,1)";
+      wheel.style.transform = `rotate(${endDeg}deg)`;
+
+      setTimeout(() => {
+        spinText.textContent = "Result:";
+        winnerText.innerHTML = 'Winner: <b>0xABCD…1234</b>';
+        runBtn.disabled = false;
+      }, 3900);
+    });
+  </script>
+</body>
+</html>
