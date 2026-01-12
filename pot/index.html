@@ -42,7 +42,7 @@
       font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--txt);
       background: url("/dxn-bg.png") center / cover no-repeat fixed;
-      padding: 22px 22px;
+      padding: 22px;
     }
 
     /* subtle top glow */
@@ -55,13 +55,13 @@
       z-index:-1;
       filter: blur(2px);
     }
-    
+
     .frame{
-    width: min(1440px, calc(100vw - 44px));
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 20px;
-    border-radius: 26px;
+      width: min(1440px, calc(100vw - 44px));
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 26px;
       border: 1px solid rgba(255,255,255,.10);
       background: rgba(2,6,23,.38);
       box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.03);
@@ -70,18 +70,16 @@
       position: relative;
     }
     .frame::after{
-        content:"";
-        position:absolute;
-        inset: 0;
-        border-radius: 26px;
-        pointer-events:none;
-
-        /* dbxen-style edge glow */
-        box-shadow:
-            0 0 0 1px rgba(255,255,255,.06),
-            0 0 120px rgba(250,204,21,.18),
-            inset 0 0 60px rgba(250,204,21,.08);
-        }
+      content:"";
+      position:absolute;
+      inset: 0;
+      border-radius: 26px;
+      pointer-events:none;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.06),
+        0 0 120px rgba(250,204,21,.18),
+        inset 0 0 60px rgba(250,204,21,.08);
+    }
 
     /* top bar */
     .topbar{
@@ -91,6 +89,8 @@
       gap:12px;
       flex-wrap:wrap;
       margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
     }
 
     .tabs{
@@ -134,6 +134,7 @@
       min-height: 44px;
       white-space:nowrap;
     }
+
     .dot{
       width: 10px; height: 10px;
       border-radius: 999px;
@@ -166,13 +167,17 @@
       border-radius: var(--r16);
       padding: 18px;
       box-shadow: var(--shadow2), inset 0 0 0 1px rgba(255,255,255,.03);
+      position: relative;
+      z-index: 1;
     }
 
-    /* HERO */
+    /* HERO cards */
     .hero{
-        padding: 26px;
-        border-radius: 22px;
-        }
+      padding: 26px;
+      border-radius: 22px;
+      position: relative; /* FIX: makes hero glow behave */
+      overflow: hidden;
+    }
     .hero:before{
       content:"";
       position:absolute; inset:-1px;
@@ -183,14 +188,6 @@
       opacity:.9;
     }
     .hero > *{ position:relative; }
-
-    .hero-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap: 14px;
-      flex-wrap:wrap;
-    }
 
     .title{
       margin:0;
@@ -207,14 +204,7 @@
       font-size: 14px;
     }
 
-    .meta{
-      color: var(--muted2);
-      font-size: 13px;
-      line-height: 1.7;
-      text-align:right;
-    }
-    .meta b{ color: var(--yellow); font-weight: 900; }
-
+    /* Big number aesthetic */
     .prizeRow{
       margin-top: 14px;
       display:flex;
@@ -223,8 +213,15 @@
       flex-wrap:wrap;
     }
 
-    .prize{ font-size: clamp(44px, 4.2vw, 66px); }
-    .prize small{
+    .prize{
+      font-size: clamp(44px, 4.2vw, 66px);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .04em;
+      text-shadow: 0 10px 30px rgba(0,0,0,.55);
+      filter: drop-shadow(0 10px 22px rgba(0,0,0,.35));
+    }
+
+    .prizeLabel{
       font-size: 14px;
       font-weight: 800;
       color: var(--muted2);
@@ -237,96 +234,120 @@
       align-items:center;
       gap: 12px;
       flex-wrap:wrap;
-      max-width: 420px;
+      max-width: 520px;
     }
+
+    .hero-left{
+        position: relative;
+        }
+
+        /* header row: title left, button right */
+        .heroHead{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:14px;
+        }
+
+        /* keep button from shrinking + keep it tidy */
+        .btn-runlottery{
+        flex: 0 0 auto;
+        min-width: 180px;
+        height: 44px;
+        border-radius: 14px;
+        }
+
+        /* keep number alignment with the right hero card */
+        .prizeRow-even{
+        margin-top: 28px; /* alignment knob */
+        }
+
+        /* label next to number (matches your current aesthetic) */
+        .prizeLabel{
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--muted2);
+        letter-spacing: .25px;
+        align-self: baseline;
+        margin-left: 6px;
+        }
+
 
     .fine{
       color: var(--muted2);
       font-size: 13px;
       font-weight: 600;
+      line-height: 1.35;
     }
     .fine b{ color: var(--yellow); }
 
-    /* countdown pill */
-    .countdown{
+    .topRight{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-left:auto;
+      flex-wrap:wrap;
+    }
+
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      margin-top:14px;
+    }
+    @media (max-width: 960px){
+      .heroGrid{ grid-template-columns: 1fr; }
+    }
+
+    .pageTitle{
+      text-align:center;
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: .2px;
+      margin: 18px 0 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subline{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap: 26px;
+      flex-wrap:wrap;
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .subline b{ color: var(--yellow); font-weight:900; }
+
+    .countdownMini{
       display:inline-flex;
       align-items:center;
-      gap: 10px;
+      gap:10px;
       padding: 10px 12px;
       border-radius: 14px;
       border: 1px solid var(--stroke2);
       background: rgba(2,6,23,.36);
     }
-    .countdown .k{ color: var(--muted2); font-size: 12px; font-weight: 800; letter-spacing:.25px; }
-    .countdown .v{ color: var(--yellow); font-weight: 900; }
+    .countdownMini .k{ color: var(--muted2); font-size: 12px; font-weight: 800; letter-spacing:.25px; }
+    .countdownMini .v{ color: var(--yellow); font-weight: 900; }
 
-    /* wheel (inside hero) */
-    .wheelWrap{
-      margin-top: 16px;
-      border: 1px solid var(--stroke2);
-      background: rgba(2,6,23,.32);
-      border-radius: var(--r16);
-      padding: 14px;
-      display:none;
-    }
-
-    .wheelRow{
-      display:flex;
+    /* below hero */
+    .below{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
       gap: 14px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-
-    .wheel{
-      width: 150px;
-      height: 150px;
-      border-radius: 999px;
-      border: 1px solid rgba(250,204,21,.55);
-      box-shadow: 0 14px 28px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
       position: relative;
-      background:
-        conic-gradient(
-          rgba(250,204,21,.22),
-          rgba(255,255,255,.06),
-          rgba(96,165,250,.12),
-          rgba(255,255,255,.06),
-          rgba(250,204,21,.16)
-        );
+      z-index: 1;
     }
-    .wheel:after{
-      content:"";
-      position:absolute;
-      top:-12px;
-      left:50%;
-      transform: translateX(-50%);
-      width:0; height:0;
-      border-left:10px solid transparent;
-      border-right:10px solid transparent;
-      border-bottom:16px solid rgba(250,204,21,.95);
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.45));
+    @media (max-width: 960px){
+      .below{ grid-template-columns: 1fr; }
     }
 
-    .spinText{
-      color: var(--muted);
-      font-weight: 700;
-      font-size: 13px;
-      letter-spacing:.2px;
-    }
-    .winnerText{
-      margin-top: 8px;
-      font-size: 14px;
-      color: var(--txt);
-      font-weight: 700;
-      line-height: 1.5;
-    }
-    .winnerText b{ color: var(--yellow); font-weight: 900; }
-
-    /* grid below */
-    .grid{
-        margin-top: 16px;
-        gap: 14px;
-        grid-template-columns: repeat(3, minmax(260px, 1fr));
-        }
     .label{
       font-size: 14px;
       font-weight: 900;
@@ -340,13 +361,6 @@
       gap: 10px;
       flex-wrap:wrap;
     }
-
-    .lastRow{
-        margin-top: 14px;
-        display:grid;
-        grid-template-columns: 1fr;
-        }
-
 
     .input{
       width: 170px;
@@ -389,24 +403,129 @@
     .stats .line:last-child{ border-bottom:0; padding-bottom:0; }
     .stats b{ color: var(--yellow); font-weight: 900; }
 
-    @media (max-width: 1100px){
-        .grid{ grid-template-columns: 1fr; }
-        
-      .meta{ text-align:left; }
-      .prize{ font-size: 46px; }
+    .lastRow{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
     }
 
-    .below{
-        margin-top: 14px;
-        display:grid;
-        grid-template-columns: repeat(3, minmax(0,1fr));
-        gap: 14px;
-        }
+    /* footer */
+    .footer{
+      margin-top:40px;
+      padding:28px;
+      border-top:1px solid rgba(255,255,255,.08);
+      background:rgba(2,6,23,.55);
+    }
 
-        @media (max-width: 960px){
-        .below{ grid-template-columns: 1fr; }
-        }
+    .footer-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:24px;
+    }
 
+    .footer h4{
+      margin:0 0 10px;
+      font-size:14px;
+      font-weight:800;
+    }
+
+    .steps{
+      list-style:none;
+      padding:0;
+      margin:0;
+    }
+    .steps li{
+      margin-bottom:10px;
+      color:#a3aab7;
+    }
+    .steps b{ color:#facc15; }
+
+    .links{
+      list-style:none;
+      padding:0;
+      margin:0;
+    }
+    .links li{ margin-bottom:8px; }
+    .links a{
+      color:#a3aab7;
+      text-decoration:none;
+    }
+    .links a:hover{ color:#fff; }
+
+    .socials a{
+      margin-right:12px;
+      padding:8px 10px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.1);
+      color:#fff;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .footer-bar{
+      margin-top:20px;
+      padding-top:14px;
+      border-top:1px solid rgba(255,255,255,.06);
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size:12px;
+      color:#7c8596;
+    }
+
+    .status{ color:#22c55e; }
+
+    .addrRow{
+      display:grid;
+      grid-template-columns:64px 1fr;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+
+    .addrRow .k{
+      color:#7c8596;
+      font-weight:800;
+      font-size:12px;
+      letter-spacing:.2px;
+    }
+
+    .addrVal{
+      color:#a3aab7;
+      cursor:pointer;
+      user-select:text;
+      padding:6px 10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(2,6,23,.25);
+      transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease, color .12s ease;
+    }
+
+    .addrVal:hover{
+      color:#fff;
+      border-color: rgba(250,204,21,.28);
+      box-shadow: 0 0 0 1px rgba(250,204,21,.15), 0 10px 26px rgba(0,0,0,.35);
+      transform: translateY(-1px);
+    }
+
+    .addrVal:active{ transform: translateY(0px); }
+
+    .copyToast{
+      margin-top:10px;
+      display:inline-block;
+      padding:8px 10px;
+      border-radius:999px;
+      background: linear-gradient(180deg, #facc15, #f59e0b);
+      color:#000;
+      font-weight:900;
+      font-size:12px;
+    }
   </style>
 </head>
 
@@ -419,51 +538,74 @@
         <a class="tab" href="/burn/">BURN XEN</a>
       </div>
 
-      <div class="pill">
-        <span class="dot"></span>
-        <span id="ethBal" class="mono" style="font-weight:800;">— ETH</span>
-        <span id="addrShort" class="mono" style="opacity:.85;">Not connected</span>
-        <button id="connectBtn" class="btn-yellow" style="height:40px;padding:0 12px;border-radius:12px;font-weight:900;">
-          Connect
-        </button>
+      <div class="topRight">
+        <!-- Chain selector -->
+        <div class="pill" id="chainPill" title="Chain selector (visual only for now)">
+          <span class="dot"></span>
+          <span class="mono" style="font-weight:800;">Ethereum</span>
+          <span style="opacity:.7;">▼</span>
+        </div>
+
+        <!-- Wallet -->
+        <div class="pill">
+          <span class="dot"></span>
+          <span id="ethBal" class="mono" style="font-weight:800;">— ETH</span>
+          <span id="addrShort" class="mono" style="opacity:.85;">Not connected</span>
+          <button id="connectBtn" class="btn-yellow"
+            style="height:40px;padding:0 12px;border-radius:12px;font-weight:900;">
+            Connect
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- HERO (Lottery) -->
-    <div class="card hero">
-      <div class="hero-top">
+    <div class="pageTitle">DXN POT — LOTTERY</div>
+
+    <div class="subline">
+      <div>Current Cycle: <b id="currentCycle">—</b></div>
+      <div>Last Draw: <b id="lastDrawCycle">—</b></div>
+
+      <div class="countdownMini">
+        <span class="k">NEXT DRAW IN</span>
+        <span id="nextDraw" class="v mono">—</span>
+      </div>
+    </div>
+
+    <div class="heroGrid">
+
+    <!-- LEFT HERO -->
+    <div class="card hero hero-left">
+    <div class="heroHead">
         <div>
-          <h1 class="title">DXN Pot</h1>
-          <div class="sub">Weighted lottery • Prize paid in ETH fees only</div>
+        <h2 class="title" style="font-size:22px;margin:0;">ETH Fees</h2>
+        <div class="sub">Total ETH to be paid to random winner</div>
         </div>
 
-        <div class="meta">
-          <div>Current Cycle: <b id="currentCycle">—</b></div>
-          <div>Last Draw: <b id="lastDrawCycle">—</b></div>
-        </div>
-      </div>
-
-      <div class="prizeRow">
-        <div class="prize mono"><span id="potEth">—</span></div>
-        <small class="mono">ETH prize</small>
-
-        <div class="countdown" style="margin-left:auto;">
-          <span class="k">NEXT DRAW IN</span>
-          <span id="nextDraw" class="v mono">—</span>
-        </div>
-      </div>
-
-      <div class="hero-actions">
-        <button id="runBtn" class="btn-yellow" style="min-width:190px;height:46px;border-radius:14px;">
-          Run Lottery
+        <button id="runBtn" class="btn-yellow btn-runlottery">
+        Run Lottery
         </button>
+    </div>
 
-        <div class="fine">
-          One draw per DBXen cycle • If no one draws, ETH continues accumulating
-          <br/>
-          Once per cycle • <b>96.31%</b> winner • <b>3.69%</b> dev bucket
+    <div class="prizeRow prizeRow-even">
+        <div class="prize mono"><span id="potEth">0.00000</span></div>
+        <div class="prizeLabel mono">ETH fees</div>
+    </div>
+    </div>
+
+
+
+
+      <!-- RIGHT HERO -->
+      <div class="card hero">
+        <h2 class="title" style="font-size:22px;">Vault Totals</h2>
+        <div class="sub">Staked DXN held by the Pot</div>
+
+        <div class="prizeRow" style="margin-top:18px;">
+          <div class="prize mono"><span id="potDxn">0.000000</span></div>
+          <div class="prizeLabel mono">DXN in pot</div>
         </div>
       </div>
+
     </div>
 
     <!-- BELOW HERO -->
@@ -482,7 +624,7 @@
         <div class="row">
           <input id="depAmt" class="input mono" placeholder="0.0" />
           <button id="depBtn" class="btn-yellow" style="height:44px;border-radius:14px;">
-            Deposit & Stake
+            Deposit &amp; Stake
           </button>
         </div>
         <div class="hint">Deposits activate next cycle.</div>
@@ -500,7 +642,7 @@
       </div>
     </div>
 
-    <!-- LAST RESULT (single card, not duplicating deposit/withdraw) -->
+    <!-- LAST RESULT -->
     <div class="lastRow">
       <div class="card">
         <div class="label">Last Result</div>
@@ -513,32 +655,93 @@
     </div>
 
   </div>
-</body>
 
+  <footer class="footer">
+    <div class="footer-grid">
+
+      <div>
+        <h4>How DXN Pot Works</h4>
+        <ol class="steps">
+          <li><b>Burn XEN</b><br><span>Burn XEN to mint DXN.</span></li>
+          <li><b>Earn DXN</b><br><span>DXN minted each cycle.</span></li>
+          <li><b>Stake for Fees</b><br><span>Stake DXN to earn ETH fees.</span></li>
+        </ol>
+      </div>
+
+      <div>
+        <h4>Contract Addresses</h4>
+
+        <div class="addrRow">
+          <span class="k">XEN</span>
+          <span class="addrVal mono" data-copy="0x06450dee7fd2fb8e39061434babcfc05599a6fb8">0x06450d…a6Fb8</span>
+        </div>
+
+        <div class="addrRow">
+          <span class="k">DBXen</span>
+          <span class="addrVal mono" data-copy="0xF5c80c305803280B587F8cabBcCdC4d9BF522AbD">0xF5c80c…22AbD</span>
+        </div>
+
+        <div class="addrRow">
+          <span class="k">DXN</span>
+          <span class="addrVal mono" data-copy="0x80f0c1c49891dcfdd40b6e0f960f84e6042bcb6f">0x80f0c1…2bcB6F</span>
+        </div>
+
+        <div id="copyToast" class="copyToast" style="display:none;">Address copied</div>
+      </div>
+
+      <div>
+        <h4>Resources</h4>
+        <ul class="links">
+          <li><a href="#">Litepaper</a></li>
+          <li><a href="#">GitHub</a></li>
+          <li><a href="#">XEN Network</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Community</h4>
+        <div class="socials">
+          <a href="#">X</a>
+          <a href="#">Telegram</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bar">
+      <span>Community-built interface. Not affiliated with original DBXen team.</span>
+      <span class="status">● Connected to Ethereum</span>
+    </div>
+  </footer>
 
   <script>
+    // Helpers: safely get/set elements (prevents "Cannot set properties of null")
+    const $ = (id) => document.getElementById(id);
+
+    function setText(id, value){
+      const el = $(id);
+      if (el) el.textContent = value;
+    }
+
     // VISUAL MOCK ONLY (no contracts yet)
-    const connectBtn = document.getElementById("connectBtn");
-    const runBtn = document.getElementById("runBtn");
-    const wheelWrap = document.getElementById("wheelWrap");
-    const wheel = document.getElementById("wheel");
-    const spinText = document.getElementById("spinText");
-    const winnerText = document.getElementById("winnerText");
-    const nextDrawEl = document.getElementById("nextDraw");
+    const connectBtn = $("connectBtn");
+    const runBtn = $("runBtn");
+    const nextDrawEl = $("nextDraw");
 
     // Demo values so it looks alive
-    document.getElementById("potEth").textContent = "0.00000";
-    document.getElementById("currentCycle").textContent = "—";
-    document.getElementById("lastDrawCycle").textContent = "—";
-    document.getElementById("myDep").textContent = "— DXN";
-    document.getElementById("myWeight").textContent = "— %";
-    document.getElementById("myOdds").textContent = "— %";
-    document.getElementById("devBucket").textContent = "— ETH";
+    setText("potEth", "0.00000");
+    setText("potDxn", "0.000000");
+    setText("currentCycle", "—");
+    setText("lastDrawCycle", "—");
+    setText("myDep", "— DXN");
+    setText("myWeight", "— %");
+    setText("myOdds", "— %");
 
     // Fake countdown (placeholder)
     function startFakeCountdown(seconds){
       let s = seconds;
       function tick(){
+        if (!nextDrawEl) return;
         if (s < 0) s = 0;
         const h = String(Math.floor(s / 3600)).padStart(2,"0");
         const m = String(Math.floor((s % 3600) / 60)).padStart(2,"0");
@@ -551,36 +754,58 @@
     }
     startFakeCountdown(6 * 60 * 60);
 
-    connectBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      alert("Wire wallet later. Visual mock first.");
-    });
+    if (connectBtn){
+      connectBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        alert("Wire wallet later. Visual mock first.");
+      });
+    }
 
-    runBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
+    if (runBtn){
+      runBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        alert("Run Lottery will be wired to contracts later.");
+      });
+    }
 
-      wheelWrap.style.display = "block";
-      runBtn.disabled = true;
+    // Footer copy wiring (works even if other ids are missing)
+    (function wireFooterCopy(){
+      const toast = $("copyToast");
 
-      spinText.textContent = "Spinning…";
-      winnerText.innerHTML = 'Winner: <b>—</b>';
+      function showToast(msg){
+        if (!toast) return;
+        toast.textContent = msg || "Address copied";
+        toast.style.display = "inline-block";
+        toast.style.opacity = "1";
+        clearTimeout(window.__toastT);
+        window.__toastT = setTimeout(() => {
+          toast.style.opacity = "0";
+          setTimeout(() => (toast.style.display = "none"), 200);
+        }, 900);
+      }
 
-      // reset transition so multiple clicks feel right
-      wheel.style.transition = "none";
-      wheel.style.transform = "rotate(0deg)";
-      wheel.offsetHeight; // reflow
+      async function copyText(t){
+        try{
+          await navigator.clipboard.writeText(t);
+          showToast("Address copied");
+        }catch{
+          const ta = document.createElement("textarea");
+          ta.value = t;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          showToast("Address copied");
+        }
+      }
 
-      const spins = 7 + Math.random() * 4;        // 7–11 turns
-      const endDeg = (spins * 360) + (Math.random() * 360);
-      wheel.style.transition = "transform 3.8s cubic-bezier(.12,.78,.12,1)";
-      wheel.style.transform = `rotate(${endDeg}deg)`;
-
-      setTimeout(() => {
-        spinText.textContent = "Result:";
-        winnerText.innerHTML = 'Winner: <b>0xABCD…1234</b>';
-        runBtn.disabled = false;
-      }, 3900);
-    });
+      document.querySelectorAll(".addrVal[data-copy]").forEach(el => {
+        el.addEventListener("click", () => {
+          const addr = el.getAttribute("data-copy");
+          if (addr) copyText(addr);
+        });
+      });
+    })();
   </script>
 </body>
 </html>
