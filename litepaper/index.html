@@ -1,157 +1,349 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DXN Pot — Protocol Overview</title>
-  <meta name="description" content="DXN Pot protocol overview and fee distribution mechanism." />
+  <title>DXNPot — Protocol Overview</title>
+  <meta name="description" content="DXNPot Protocol Overview" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
+    :root{
+      --bg:#050814;
+      --cardTop: rgba(13, 19, 34, .78);
+      --cardBot: rgba(2, 6, 23, .72);
+      --stroke: rgba(255,255,255,.085);
+      --stroke2: rgba(255,255,255,.06);
+      --txt:#e5e7eb;
+      --muted:#a3aab7;
+      --muted2:#7c8596;
+      --yellow:#facc15;
+      --yellow2:#f59e0b;
+      --black:#000;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --shadow2: 0 10px 28px rgba(0,0,0,.35);
+      --r16: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
     body{
       margin:0;
-      padding:40px 18px;
-      background:#050814;
-      color:#e5e7eb;
-      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      line-height:1.7;
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--txt);
+      background: url("/dxn-bg.png") center / cover no-repeat fixed;
+      padding: 22px;
     }
-    .wrap{
-      max-width:900px;
-      margin:0 auto;
+
+    body:before{
+      content:"";
+      position:fixed; inset:-200px -200px auto -200px;
+      height:420px;
+      background: radial-gradient(closest-side, rgba(250,204,21,.16), transparent 65%);
+      pointer-events:none;
+      z-index:-1;
+      filter: blur(2px);
     }
-    h1{
-      font-size:38px;
-      font-weight:900;
-      margin-bottom:8px;
+
+    .mono{ font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    /* Frame (same as pot/burn) */
+    .frame{
+      width: min(1440px, calc(100vw - 44px));
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(2,6,23,.38);
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.03);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+      position: relative;
     }
-    h2{
-      margin-top:42px;
-      font-size:24px;
-      font-weight:800;
+    .frame::after{
+      content:"";
+      position:absolute;
+      inset: 0;
+      border-radius: 26px;
+      pointer-events:none;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.06),
+        0 0 120px rgba(250,204,21,.18),
+        inset 0 0 60px rgba(250,204,21,.08);
     }
-    p{
-      color:#a3aab7;
-      font-size:16px;
+
+    /* Topbar */
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 2;
     }
-    b{ color:#facc15; }
-    .tag{
-      display:inline-block;
-      padding:6px 12px;
-      border-radius:999px;
-      background:linear-gradient(180deg,#facc15,#f59e0b);
-      color:#000;
-      font-weight:900;
-      font-size:13px;
-      margin-bottom:20px;
+
+    .tabs{ display:flex; gap:10px; align-items:center; }
+
+    .tab{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(2,6,23,.55);
+      color: var(--txt);
+      text-decoration:none;
+      font-weight: 800;
+      letter-spacing: .2px;
+      transition: transform .12s ease, border-color .12s ease;
     }
-    .mono{ font-family:"JetBrains Mono",monospace; }
-    ul{
-      padding-left:18px;
-      color:#a3aab7;
+    .tab:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.14); }
+
+    .tab.active{
+      background: linear-gradient(180deg, var(--yellow), var(--yellow2));
+      color: #000;
+      border: 0;
+      box-shadow: 0 10px 22px rgba(250,204,21,.18);
     }
-    li{ margin-bottom:8px; }
-    footer{
-      margin-top:60px;
-      padding-top:20px;
-      border-top:1px solid rgba(255,255,255,.08);
-      font-size:13px;
-      color:#7c8596;
+
+    /* Title */
+    .pageTitle{
+    text-align:center;
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    margin: 14px 0 12px;
     }
+
+    .subTitle{
+    text-align:center;
+    color: var(--muted);
+    font-weight: 700;
+    font-size: clamp(16px, 2.4vw, 20px);
+    margin-bottom: 20px;
+    }
+
+
+
+    /* Cards */
+    .card{
+      background: linear-gradient(180deg, var(--cardTop), var(--cardBot));
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow2), inset 0 0 0 1px rgba(255,255,255,.03);
+      position: relative;
+      z-index: 2;
+    }
+
+    .grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 14px;
+    align-items: start;
+    }
+    .col{
+    display:flex;
+    flex-direction: column;
+    gap: 14px;
+    }
+    @media (max-width: 960px){
+    .grid{ grid-template-columns: 1fr; }
+    }
+
+
+    .h{
+    margin: 0 0 10px;
+    font-size: clamp(24px, 2.6vw, 40px);
+    font-weight: 900;
+    letter-spacing: -.2px;
+    }
+
+
+
+    .p{
+      margin:0;
+      color: var(--muted);
+        font-size: 25px;
+      line-height: 1.7;
+      font-weight: 600;
+    }
+
+    .bullets{
+      margin:10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.75;
+      font-weight: 650;
+        font-size: 25px;
+    }
+
+    
+.calloutBig{
+  margin-top:14px;
+  padding:16px 18px;
+  border-radius:16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: linear-gradient(180deg, rgba(13,19,34,.55), rgba(2,6,23,.45));
+  box-shadow: 0 10px 28px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.03);
+  backdrop-filter: blur(8px);
+}
+
+.calloutBig .line{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  flex-wrap:wrap;
+  line-height:1.5;
+  font-size:16px;              /* <-- bigger */
+  font-weight:650;
+}
+
+.calloutBig .line + .line{
+  margin-top:10px;
+  padding-top:10px;
+  border-top: 1px dashed rgba(255,255,255,.10);
+}
+
+.calloutBig .k{
+  font-weight:900;
+  color:#e5e7eb;
+  letter-spacing:.15px;
+}
+
+.calloutBig .v{
+  color:#a3aab7;
+  font-weight:650;
+}
+
+.calloutBig .pct{
+  font-weight:900;
+  padding:4px 10px;
+  border-radius:999px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(2,6,23,.35);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.calloutBig .pct.good{ color:#22c55e; }
+.calloutBig .pct.warn{ color:#facc15; }
+
+
+
+
+    .btn-yellow{
+      background: linear-gradient(180deg, var(--yellow), var(--yellow2));
+      border: 0;
+      color: var(--black);
+      font-weight: 900;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor:pointer;
+      height: 40px;
+      box-shadow: 0 10px 22px rgba(250,204,21,.18);
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .btn-yellow:hover{ transform: translateY(-1px); }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
+  <div class="frame">
 
-    <span class="tag">Protocol Overview</span>
-    <h1>DXN Pot</h1>
-    <p>
-      DXN Pot is a community-driven DXN staking pool that aggregates user stakes
-      into a single position within the DBXen protocol and distributes accrued
-      ETH fees through a transparent, on-chain execution process.
-    </p>
+    <div class="topbar">
+      <div class="tabs">
+        <a class="tab" href="/pot/">DXN POT</a>
+        <a class="tab" href="/burn/">BURN XEN</a>
+        <a class="tab active" href="/litepaper/">OVERVIEW</a>
+      </div>
+    </div>
 
-    <h2>Purpose</h2>
-    <p>
-      DXN Pot is designed for participants who want to earn protocol ETH fees
-      without managing individual staking strategies. By pooling DXN, users gain
-      exposure similar to a large staker while retaining individual ownership
-      and withdrawal rights under DBXen rules.
-    </p>
+    <div class="pageTitle">Protocol Overview</div>
+    <div class="subTitle">DXNPot is a pooled fee strategy designed for transparent distribution and community-driven buy & burn.</div>
 
-    <h2>How It Works</h2>
-    <ul>
-      <li>Users deposit DXN into the DXN Pot vault.</li>
-      <li>Deposited DXN is staked into the DBXen protocol.</li>
-      <li>ETH fees accumulate within the pot over time.</li>
-      <li>A community-triggered execution distributes accumulated ETH fees.</li>
-    </ul>
+    <div class="grid">
 
-    <h2>Fee Distribution</h2>
-    <p>
-      ETH fees generated by DBXen staking are pooled and distributed using a
-      deterministic on-chain execution process.
-    </p>
-    <ul>
-      <li><b>96.31%</b> of ETH fees are distributed to eligible participants.</li>
-      <li><b>3.69%</b> is allocated to a buy-and-burn mechanism for DXN.</li>
-    </ul>
+        <!-- LEFT COLUMN -->
+        <div class="col">
+            <div class="card">
+            <h3 class="h">What it does</h3>
+            <p class="p">
+                Users pool DXN and participate in fee generation. ETH fees accumulate and are distributed by a public action.
+            </p>
+            <ul class="bullets">
+                <li>Pool + stake flow (DXN)</li>
+                <li>ETH fees accrue over time</li>
+                <li>Community-triggered distribution</li>
+            </ul>
+            </div>
 
-    <p>
-      Distribution execution is initiated manually by any participant, allowing
-      fees to accumulate and minimizing unnecessary gas costs.
-    </p>
+            <!-- OPTIONAL: add a second left card to visually balance -->
+            <div class="card">
+            <h3 class="h">Risks &amp; notes</h3>
+            <ul class="bullets">
+                <li>Smart contracts are experimental and may evolve.</li>
+                <li>All interactions are public and on-chain.</li>
+                <li>Users pay gas and should understand Ethereum fees.</li>
+            </ul>
+            </div>
+        </div>
 
-    <h2>DXN Buy & Burn</h2>
-    <p>
-      ETH allocated to buy-and-burn is held in a dedicated on-chain bucket.
-      Anyone may trigger the buy-and-burn transaction, swapping ETH for DXN and
-      sending purchased DXN to a burn address, permanently removing it from
-      circulation.
-    </p>
+        <!-- RIGHT COLUMN -->
+        <div class="col">
+            <div class="card">
+            <h3 class="h">Distribution model</h3>
+            <p class="p">
+                Fee distribution is initiated by an on-chain call. A portion can be routed to community buy &amp; burn.
+            </p>
 
-    <h2>Execution Model</h2>
-    <p>
-      DXN Pot does not rely on off-chain operators. All critical actions:
-    </p>
-    <ul>
-      <li>Fee distribution execution</li>
-      <li>DXN buy-and-burn execution</li>
-    </ul>
-    <p>
-      are permissionless and callable by the community.
-    </p>
+            <div class="calloutBig">
+                <div class="line">
+                <span class="k">Execute Fee Distribution</span>
+                <span class="pct good">96.31%</span>
+                <span class="v">to chosen weighted staker</span>
+                </div>
 
-    <h2>Upgradability & Governance</h2>
-    <p>
-      The protocol is designed to be conservative and transparent. Any future
-      upgrades or parameter adjustments would be communicated clearly and are
-      expected to follow community consensus.
-    </p>
+                <div class="line">
+                <span class="k">Buy &amp; Burn</span>
+                <span class="pct warn">3.69%</span>
+                <span class="v">to DXN buy &amp; burn bucket (community callable)</span>
+                </div>
+            </div>
+            </div>
 
-    <h2>Risk Considerations</h2>
-    <ul>
-      <li>Smart contract risk inherent to all on-chain protocols.</li>
-      <li>Gas costs associated with execution transactions.</li>
-      <li>DBXen protocol rule changes may affect behavior.</li>
-    </ul>
+            <div class="card">
+            <h3 class="h">Buy &amp; Burn bucket</h3>
+            <p class="p">
+                ETH set aside for buy &amp; burn is not auto-spent every cycle. It can accumulate, then anyone can trigger a buy &amp; burn to reduce DXN supply.
+            </p>
 
-    <h2>Philosophy</h2>
-    <p>
-      DXN Pot is built with a simple goal:
-    </p>
-    <p><b>Earn protocol fees efficiently while strengthening DXN through
-    transparent, community-driven mechanics.</b></p>
+            <div class="calloutBig" style="margin-top:14px;">
+                <div class="line">
+                <span class="k">Burn destination</span>
+                <span class="v mono">0x000000000000000000000000000000000000dEaD</span>
+                </div>
+            </div>
+            </div>
+        </div>
 
-    <footer>
-      DXN Pot is a community-built interface and is not affiliated with the
-      original DBXen team. This document is for informational purposes only and
-      does not constitute financial advice.
-    </footer>
+        </div>
+
 
   </div>
 </body>
