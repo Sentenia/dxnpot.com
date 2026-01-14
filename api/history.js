@@ -1,77 +1,88 @@
-const CHAIN_MAP = {
-  eth: "eth",
-  polygon: "polygon",
-  pulse: "pulse",
-};
-
-function isHexAddress(s) {
-  return typeof s === "string" && /^0x[a-fA-F0-9]{40}$/.test(s);
-}
-
 export default async function handler(req, res) {
   try {
-    // CORS (so GitHub Pages can call Vercel)
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    const { chain = "eth", address } = req.query;
+    if (!address) return res.status(400).json({ ok: false, error: "missing_address" });
 
-    if (req.method === "OPTIONS") return res.status(204).end();
-    if (req.method !== "GET") {
-      return res.status(405).json({ ok: false, error: "method_not_allowed" });
-    }
+    const MORALIS_KEY = process.env.MORALIS_API_KEY;
+    if (!MORALIS_KEY) return res.status(200).json({ ok: false, error: "missing_key" });
 
-    const chainKey = String(req.query.chain || "").toLowerCase();
-    const address = String(req.query.address || "");
+    // Normalize chain key for Moralis
+    // Moralis EVM chain examples: "eth", "polygon", "bsc", "avalanche", "base"
+    // PulseChain may need "0x171" or may not be supported on your Moralis plan.
+    const moralisChain =
+      chain === "pulse" ? "0x171" : chain; // keep for now
 
-    const chain = CHAIN_MAP[chainKey];
-    if (!chain) return res.status(400).json({ ok: false, error: "bad_chain" });
-    if (!isHexAddress(address)) return res.status(400).json({ ok: false, error: "bad_address" });
+    const headers = {
+      accept: "application/json",
+      "X-API-Key": MORALIS_KEY,
+    };
 
-    const apiKey = process.env.MORALIS_API_KEY;
-    if (!apiKey) return res.status(500).json({ ok: false, error: "missing_api_key" });
+    // 1) Normal transactions (includes input so we can decode burnBatch)
+    const txUrl =
+      `https://deep-index.moralis.io/api/v2.2/${address}/transactions` +
+      `?chain=${encodeURIComponent(moralisChain)}&order=DESC&limit=100`;
 
-    // ✅ Correct Moralis endpoint: /api/v2.2/:address
-    const url =
-      `https://deep-index.moralis.io/api/v2.2/${address}` +
-      `?chain=${encodeURIComponent(chain)}&order=DESC&limit=50`;
+    // 2) ERC20 transfers (we’ll filter for DXN on frontend)
+    const erc20Url =
+      `https://deep-index.moralis.io/api/v2.2/${address}/erc20/transfers` +
+      `?chain=${encodeURIComponent(moralisChain)}&order=DESC&limit=200`;
 
-    const r = await fetch(url, {
-      headers: {
-        accept: "application/json",
-        "X-API-Key": apiKey,
-      },
-    });
+    // 3) Internal transactions (this is where claimFees ETH shows up)
+    const internalUrl =
+      `https://deep-index.moralis.io/api/v2.2/${address}/internal-transactions` +
+      `?chain=${encodeURIComponent(moralisChain)}&order=DESC&limit=200`;
 
-    if (!r.ok) {
-      const text = await r.text().catch(() => "");
-      return res.status(502).json({
-        ok: false,
-        error: "moralis_error",
-        status: r.status,
-        body: text.slice(0, 500),
-      });
-    }
+    const [txResp, erc20Resp, internalResp] = await Promise.all([
+      fetch(txUrl, { headers }),
+      fetch(erc20Url, { headers }),
+      fetch(internalUrl, { headers }),
+    ]);
 
-    const data = await r.json();
+    const [txJson, erc20Json, internalJson] = await Promise.all([
+      txResp.json(),
+      erc20Resp.json(),
+      internalResp.json(),
+    ]);
 
-    const items = (data.result || []).map((tx) => ({
-      hash: tx.hash,
-      from: tx.from_address,
-      to: tx.to_address,
-      value: String(tx.value ?? ""),
-      block: tx.block_number,
-      ts: tx.block_timestamp,
-      gas: tx.gas,
-      gasPrice: tx.gas_price,
-      status: tx.receipt_status,
+    // Return trimmed payloads to keep it light
+    const txs = (txJson?.result || txJson?.items || []).map(t => ({
+      hash: t.hash,
+      from: t.from_address || t.from,
+      to: t.to_address || t.to,
+      value: t.value,
+      input: t.input,            // IMPORTANT
+      block: t.block_number || t.block,
+      ts: t.block_timestamp || t.ts,
     }));
 
-    return res.status(200).json({ ok: true, chain: chainKey, address, items });
-  } catch (e) {
-    return res.status(500).json({
-      ok: false,
-      error: "server_error",
-      message: String(e?.message || e),
+    const erc20 = (erc20Json?.result || erc20Json?.items || []).map(t => ({
+      tx_hash: t.transaction_hash || t.tx_hash,
+      from: t.from_address || t.from,
+      to: t.to_address || t.to,
+      value: t.value,
+      token_address: t.address || t.token_address,
+      token_symbol: t.token_symbol,
+      token_decimals: t.token_decimals,
+      ts: t.block_timestamp || t.ts,
+    }));
+
+    const internals = (internalJson?.result || internalJson?.items || []).map(t => ({
+      hash: t.transaction_hash || t.hash,
+      from: t.from_address || t.from,
+      to: t.to_address || t.to,
+      value: t.value,
+      ts: t.block_timestamp || t.ts,
+    }));
+
+    res.status(200).json({
+      ok: true,
+      chain: moralisChain,
+      address,
+      txs,
+      erc20,
+      internals,
     });
+  } catch (e) {
+    res.status(200).json({ ok: false, error: "server_error", message: String(e?.message || e) });
   }
 }
