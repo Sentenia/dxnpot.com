@@ -1,6 +1,6 @@
 export default function handler(req, res) {
   res.status(200).json({
     ok: true,
-    message: "history endpoint alive",
+    hasKey: !!process.env.MORALIS_API_KEY,
   });
 }
