@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DXNPot — Burn XEN · Mint & Stake DXN</title>
   <meta name="description" content="DXNPot — Burn XEN to mint DXN, auto-stake, claim ETH fees, and manage DXN staking on Ethereum.">
-  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="icon" type="image/png" href="favicon.png">
 
   <!-- DXNPot fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,7 +48,7 @@
       margin:0;
       font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--txt);
-      background: url("/dxn-bg.png") center / cover no-repeat fixed;
+      background: url("dxn-bg.png") center / cover no-repeat fixed;
       padding: 22px 22px;
     }
 
@@ -77,6 +77,7 @@
       backdrop-filter: blur(12px);
       overflow: hidden;
       position: relative;
+      z-index: 0;
     }
     .frame::after{
       content:"";
@@ -91,21 +92,53 @@
     }
 
     /* DXNPot top bar */
+    /* TOPBAR (match pot page) */
     .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom: 18px;
-      position: relative;
-      z-index: 2;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 2;
+
+    /* desktop = one line */
+    flex-wrap: nowrap;
     }
+
+    .topRight{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-left:auto;
+    flex-wrap: nowrap;     /* IMPORTANT: prevents dropping */
+    }
+
+    .walletRow{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    }
+
+    /* mobile = allow wrapping */
+    @media (max-width: 820px){
+    .topbar{ flex-wrap: wrap; }
+    .topRight{ flex-wrap: wrap; justify-content:flex-end; }
+    }
+
+
+    .walletRow{
+        display:flex;
+        gap:10px;
+        align-items:center;
+        }
+
 
     .tabs{
       display:flex;
       gap:10px;
       align-items:center;
+      flex-wrap: wrap;
     }
 
     .tab{
@@ -151,6 +184,16 @@
       box-shadow: 0 0 14px rgba(96,165,250,.45);
     }
 
+    #batchInput{
+    width: 110px;              /* tweak */
+    text-align: center;
+    font-weight: 900;
+    font-size: 18px;
+    height: 44px;
+    border-radius: 14px;
+    }
+
+
     .btn-yellow{
       background: linear-gradient(180deg, var(--yellow), var(--yellow2));
       border: 0;
@@ -191,6 +234,47 @@
     }
 
     .subline b{ color: var(--yellow); font-weight:900; }
+
+    /* Totals + History helpers */
+    .grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+    }
+    @media (max-width: 900px){
+    .grid{ grid-template-columns: 1fr; }
+    }
+
+    .h{
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: .2px;
+    }
+
+    .calloutBig{
+    border: 1px solid var(--stroke);
+    background: rgba(2,6,23,.35);
+    border-radius: 14px;
+    padding: 12px 14px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+
+    .line{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .line:last-child{ border-bottom: 0; }
+
+    .k{ color: var(--muted); font-weight: 800; }
+    .pct{ font-weight: 900; }
+    .warn{ color: var(--yellow); }
+    .good{ color: #86efac; } /* simple green */
+
 
     .card{
       background: linear-gradient(180deg, var(--cardTop), var(--cardBot));
@@ -249,6 +333,19 @@
       transition: border-color .12s ease, transform .12s ease;
     }
     .input:focus{ border-color: rgba(250,204,21,.35); transform: translateY(-1px); }
+
+    /* Remove number input arrows (Chrome, Edge, Safari) */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    }
+
+    /* Remove number input arrows (Firefox) */
+    input[type="number"] {
+    -moz-appearance: textfield;
+    }
+
 
     .xenbox{
       flex: 1 1 220px;
@@ -385,33 +482,13 @@
       box-shadow: 0 10px 22px rgba(250,204,21,.18);
     }
 
-    /* chain pill menu */
-    .chain-pill{ position:relative; cursor:pointer; }
-    .chain-menu{
-      position:absolute;
-      top: 52px;
-      left: 0;
-      width: 220px;
-      padding: 8px;
-      border-radius: 12px;
-      border: 1px solid var(--stroke);
-      background: rgba(2,6,23,.55);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.03);
-      z-index: 999;
+    
+    .chainWrap{
+    position: relative;
+    display: inline-flex;  /* IMPORTANT: don’t behave like a big block */
+    flex: 0 0 auto;        /* IMPORTANT: don’t stretch */
     }
-    .chain-item{
-      width:100%;
-      text-align:left;
-      padding: 10px 12px;
-      border:0;
-      border-radius:10px;
-      background: transparent;
-      color: var(--txt);
-      cursor:pointer;
-      font-size: 14px;
-      font-weight: 650;
-    }
+  
     .chain-item:hover{ background: rgba(255,255,255,.06); }
 
     .row-between{
@@ -434,6 +511,79 @@
       .title{ font-size: 26px; }
       .xenbox{ min-width: 180px; }
     }
+
+    /* =========================
+   CHAIN DROPDOWN (FINAL)
+   ========================= */
+
+/* Make the glow overlay ALWAYS behind everything */
+.frame{
+  position: relative;
+  isolation: isolate;
+}
+.frame::after{
+  z-index: -1 !important;
+  pointer-events: none;
+}
+
+/* Force the topbar ABOVE the page cards */
+.topbar{
+  position: relative;
+  z-index: 5000;
+}
+
+/* Cards can be normal */
+.card, .rows, .grid, .title, .subline, .bottomlinks{
+  position: relative;
+  z-index: 1;
+}
+
+/* Anchor dropdown to pill and keep above everything */
+.chainWrap{
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  z-index: 99999; /* key */
+}
+
+/* Dropdown menu */
+#chainMenu{
+  display: none;
+  position: absolute;
+  top: 52px;
+  left: 0;
+
+  min-width: 240px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: rgba(2,6,23,.88);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.03);
+
+  z-index: 100000; /* key */
+}
+
+/* Open state */
+#chainMenu.show{ display:block; }
+
+/* Items */
+#chainMenu .chain-item{
+  display:block;
+  width:100%;
+  text-align:left;
+  padding:10px 12px;
+  border:0;
+  border-radius:10px;
+  background:transparent;
+  color:var(--txt);
+  cursor:pointer;
+  font-size:14px;
+  font-weight:650;
+}
+#chainMenu .chain-item:hover{ background: rgba(255,255,255,.06); }
+
+
   </style>
 </head>
 
@@ -442,42 +592,48 @@
 
     <!-- DXNPot-style topbar w/ tabs -->
     <div class="topbar">
-      <div class="tabs">
+    <div class="tabs">
         <a class="tab" href="/pot/">DXN POT</a>
         <a class="tab active" href="/burn/">BURN XEN</a>
-      </div>
+        <a class="tab" href="/litepaper/">OVERVIEW</a>
+    </div>
 
-      <!-- keep your chain pill -->
-      <div class="pill chain-pill" id="chainPill">
-        <span class="dot"></span>
-        <span id="chainLabel" style="font-weight:800;">Ethereum</span>
-        <span style="opacity:.75;font-weight:800;">▼</span>
-
-        <div class="chain-menu" id="chainMenu" style="display:none;">
-          <button class="chain-item" data-chain="eth">Ethereum</button>
-          <button class="chain-item" data-chain="soon">More chains soon</button>
+    <div class="topRight">
+        <!-- Chain selector wrapper -->
+        <div class="chainWrap" id="chainWrap">
+        <div class="pill" id="chainPill" title="Chain selector">
+            <span class="dot"></span>
+            <span id="chainLabel" class="mono" style="font-weight:800;">Ethereum</span>
+            <span style="opacity:.7;">▼</span>
         </div>
-      </div>
 
-      <!-- wallet pill (same IDs preserved) -->
-      <div class="pill">
+        <!-- dropdown menu -->
+        <div id="chainMenu" class="chain-menu"></div>
+        </div>
+
+        <!-- Wallet pill -->
+        <div class="pill">
         <span class="dot"></span>
         <span id="ethBal" class="mono" style="font-weight:800;">— ETH</span>
         <span id="addrShort" class="mono" style="opacity:.85;">Not connected</span>
-        <button id="connectBtn" class="btn-yellow" style="height:40px;padding:0 12px;border-radius:12px;font-weight:900;">
-          Connect
+        <button id="connectBtn" class="btn-yellow"
+            style="height:40px;padding:0 12px;border-radius:12px;font-weight:900;">
+            Connect
         </button>
-      </div>
+        </div>
+    </div>
     </div>
 
-    <!-- title -->
-    <div class="title">Burn XEN / Mint DXN</div>
 
-    <!-- cycle line -->
-    <div class="subline">
-      <div>Current Cycle: <b id="currentCycle">—</b></div>
-      <div>DXN Minted This Cycle: <b id="dxnMintedCycle">—</b></div>
-    </div>
+        <!-- Title MUST be outside topbar -->
+        <div class="title">Burn XEN / Mint DXN</div>
+
+        <div class="subline">
+        <div>Current Cycle: <b id="cycleNum">—</b></div>
+        <div>DXN Minted This Cycle: <b id="dxnThisCycle">—</b></div>
+        <div>Next Cycle In: <b id="nextCycleIn">—</b></div>
+        </div>
+
 
     <!-- burn card -->
     <div class="card">
@@ -487,18 +643,29 @@
       </div>
 
       <div class="controls">
-        <input id="batchInput" class="input mono" type="number" value="1" min="1" max="10000" />
-
         <button id="minusBtn" class="btn-yellow" style="height:44px;border-radius:14px;">−</button>
 
-        <div class="xenbox mono">
-          <span id="xenAmount">2,500,000</span> <span style="opacity:.85;">XEN</span>
-        </div>
+        <input
+            id="batchInput"
+            class="input mono"
+            type="number"
+            value="1"
+            min="1"
+            max="10000"
+        />
 
         <button id="plusBtn" class="btn-yellow" style="height:44px;border-radius:14px;">+</button>
 
-        <button id="maxBtn" class="btn-yellow" style="height:44px;border-radius:14px;">⬆ Max</button>
-      </div>
+        <div class="xenbox mono">
+            <span id="xenAmount">2,500,000</span>
+            <span style="opacity:.85;">XEN</span>
+        </div>
+
+        <button id="maxBtn" class="btn-yellow" style="height:44px;border-radius:14px;">
+            ⬆ Max
+        </button>
+        </div>
+
 
       <div class="smallnote row-between">
         <span>1 Batch = 2,500,000 XEN</span>
@@ -558,6 +725,53 @@
       </div>
     </div>
 
+    <!-- Totals + History -->
+<div class="grid" style="margin-top:14px;">
+  <!-- Totals card -->
+  <div class="card">
+    <h3 class="h">Your Totals</h3>
+
+    <div class="calloutBig">
+      <div class="line">
+        <span class="k">Total XEN Burned</span>
+        <span class="pct warn" id="totXen">—</span>
+      </div>
+      <div class="line">
+        <span class="k">Total DXN Claimed</span>
+        <span class="pct good" id="totDxn">—</span>
+      </div>
+      <div class="line">
+        <span class="k">Total ETH Claimed</span>
+        <span class="pct warn" id="totEth">—</span>
+      </div>
+    </div>
+
+    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn-yellow" id="loadHistoryBtn">Load History</button>
+      <span class="mono" style="opacity:.7; align-self:center;" id="historyStatus">Not loaded</span>
+    </div>
+  </div>
+
+  <!-- History card -->
+  <div class="card">
+    <h3 class="h">Burn History</h3>
+
+    <div class="calloutBig" style="margin-top:10px;">
+      <div class="line" style="justify-content:space-between;">
+        <span class="k">Latest burns</span>
+        <span class="v mono" id="pageLabel">Page 1</span>
+      </div>
+    </div>
+
+    <div id="burnRows" style="margin-top:12px; display:flex; flex-direction:column; gap:10px;"></div>
+
+    <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end;">
+      <button class="btn-yellow" id="prevPageBtn" style="opacity:.85;">◀ Prev</button>
+      <button class="btn-yellow" id="nextPageBtn" style="opacity:.85;">Next ▶</button>
+    </div>
+  </div>
+</div>
+
     <!-- bottom contract links -->
     <div class="bottomlinks">
       <div class="contract-links">
@@ -568,13 +782,22 @@
 
       <div id="copyMsg" class="copy-pill" style="display:none;"></div>
     </div>
-
+    
   </div>
+
+  
+
 
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
 
   <!-- YOUR ORIGINAL JS (UNCHANGED) -->
   <script>
+    const NAV_TABS = [
+    { label: "DXN POT", href: "/pot/" },
+    { label: "BURN XEN", href: "/burn/" },
+    { label: "OVERVIEW", href: "/litepaper/" }
+    ];
+
   const ERC20_ABI = [
     "function balanceOf(address) view returns (uint256)",
     "function allowance(address owner, address spender) view returns (uint256)",
@@ -632,29 +855,354 @@
     }
   }
 
-  const chainPill = document.getElementById("chainPill");
-  const chainMenu = document.getElementById("chainMenu");
-  const chainLabel = document.getElementById("chainLabel");
+  function renderTopbar(activePath) {
+    const tabsHtml = NAV_TABS.map(tab => {
+        const isActive = activePath === tab.href;
+        return `
+        <a class="tab ${isActive ? "active" : ""}" href="${tab.href}">
+            ${tab.label}
+        </a>
+        `;
+    }).join("");
 
-  chainPill.addEventListener("click", (e) => {
-    e.stopPropagation();
-    chainMenu.style.display = (chainMenu.style.display === "none") ? "block" : "none";
-  });
+    return `
+        <div class="topbar">
+        <div class="tabs">
+            ${tabsHtml}
+        </div>
+        </div>
+    `;
+    }
 
-  document.addEventListener("click", () => {
-    chainMenu.style.display = "none";
-  });
+    const CHAINS = [
+      "ETH",
+      "PulseChain",
+      "Polygon",
+      "BSC",
+      "Avalanche",
+      "Moonbeam",
+      "Dogechain",
+      "EthereumPoW",
+      "Optimism",
+      "Base",
+    ];
 
-  document.querySelectorAll(".chain-item").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      chainLabel.textContent = btn.textContent;
-      chainMenu.style.display = "none";
+    const CHAIN_CONFIG = {
+      ETH: {
+        label: "Ethereum",
+        chainIdHex: "0x1",
+        chainName: "Ethereum Mainnet",
+        rpcUrls: ["https://cloudflare-eth.com"],
+        nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+        blockExplorerUrls: ["https://etherscan.io"],
+        nativeSymbol: "ETH",
+
+        xen: "0x06450dEe7FD2Fb8E39061434BAbCFC05599a6Fb8",
+        dxn: "0x80f0C1c49891dcFDD40b6e0F960F84E6042bcB6F",
+        dbxen: "0xF5c80c305803280B587F8cabBcCdC4d9BF522AbD",
+        views: "0xf032f7FB8258728A1938473B2115BB163d5Da593",
+
+        xenPerBatch: 2500000,
+        supportsStakeClaim: true,
+      },
+
+      PulseChain: {
+        label: "PulseChain",
+        chainIdHex: "0x171",
+        chainName: "PulseChain",
+        rpcUrls: ["https://rpc.pulsechain.com"],
+        nativeCurrency: { name: "Pulse", symbol: "PLS", decimals: 18 },
+        blockExplorerUrls: ["https://otter.pulsechain.com"],
+        nativeSymbol: "PLS",
+
+        xen: "0x8a7FDcA264e87b6da72D000f22186B4403081A2a",
+        dxn: "0x6fE0ae3D5c993a3073333134db70613B0cb88a31",
+        dbxen: "0x6d38Ab9f5b5Edfb22e57a44c3c747f9584de1f1a",
+        views: "0x9B560853787B0fB6126F7ad53b63313D2Aa625Db",
+
+        xenPerBatch: 250000000, // keep your value
+        supportsStakeClaim: true, // if views is set, claimables can work
+      },
+
+      Polygon: {
+        label: "Polygon",
+        chainIdHex: "0x89",
+        chainName: "Polygon",
+        rpcUrls: ["https://polygon-rpc.com"],
+        nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
+        blockExplorerUrls: ["https://polygonscan.com"],
+        nativeSymbol: "POL",
+
+        xen: "0x2AB0e9e4eE70FFf1fB9D67031E44F6410170d00e",
+        dxn: "0x47DD60FA40A050c0677dE19921Eb4cc512947729",
+        dbxen: "0x4F3ce26D9749C0f36012C9AbB41BF9938476c462",
+        views: "0x93CC648eE2fBf366DD5d8D354C0946bE6ee4936c",
+
+        xenPerBatch: 2500000,
+        supportsStakeClaim: true,
+      },
+
+      BSC: {
+        label: "BSC",
+        chainIdHex: "0x38",
+        chainName: "BNB Smart Chain",
+        rpcUrls: ["https://bsc-dataseed.binance.org"],
+        nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+        blockExplorerUrls: ["https://bscscan.com"],
+        nativeSymbol: "BNB",
+
+        xen: "0x2AB0e9e4eE70FFf1fB9D67031E44F6410170d00e",
+        dxn: "0xCcd09b80453335aa914f5d9174984b6586c315EC",
+        dbxen: "0x9caf6C4e5B9E3A6f83182Befd782304c7A8EE6De",
+        views: "0x6d38Ab9f5b5Edfb22e57a44c3c747f9584de1f1a",
+
+        xenPerBatch: 2500000,
+        supportsStakeClaim: true,
+      },
+
+      Avalanche: {
+        label: "Avalanche C-Chain",
+        chainIdHex: "0xA86A",
+        chainName: "Avalanche C-Chain",
+        rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"],
+        nativeCurrency: { name: "Avalanche", symbol: "AVAX", decimals: 18 },
+        blockExplorerUrls: ["https://snowtrace.io"],
+        nativeSymbol: "AVAX",
+
+        // You pasted ETH addresses for these before — keep ONLY what you truly have.
+        // If you don't have XEN/DXN addresses for AVAX, set to null and you'll see "—".
+        xen: null,
+        dxn: null,
+        dbxen: null,
+        views: "0x3DB1CcF6FC69D3265a8Ec2BF8Da0CBF17F6E76fD",
+
+        xenPerBatch: 2500000,
+        supportsStakeClaim: true,
+      },
+
+      Moonbeam: {
+        label: "Moonbeam",
+        chainIdHex: "0x504",
+        chainName: "Moonbeam",
+        rpcUrls: ["https://rpc.api.moonbeam.network"],
+        nativeCurrency: { name: "Glimmer", symbol: "GLMR", decimals: 18 },
+        blockExplorerUrls: ["https://moonbeam.moonscan.io"],
+        nativeSymbol: "GLMR",
+
+        xen: "0xb564A5767A00Ee9075cAC561c427643286F8F4E1",
+        dxn: "0xc418B123885d732ED042b16e12e259741863F723",
+        dbxen: "0x2A9C55b6Dc56da178f9f9a566F1161237b73Ba66",
+        views: "0x72Ec36D3593ba1fc7Aa5dFDc1ADdf551FE599837",
+
+        xenPerBatch: 2500000,
+        supportsStakeClaim: true,
+      },
+
+      Dogechain: {
+        label: "Dogechain",
+        chainIdHex: "0x7D0",
+        chainName: "Dogechain",
+        rpcUrls: ["https://rpc.dogechain.dog"],
+        nativeCurrency: { name: "Dogecoin", symbol: "DOGE", decimals: 18 },
+        blockExplorerUrls: ["https://explorer.dogechain.dog"],
+        nativeSymbol: "DOGE",
+
+        xen: "0x948eed4490833D526688fD1E5Ba0b9B35CD2c32e",
+        dxn: "0xc418B123885d732ED042b16e12e259741863F723",
+        dbxen: "0x2A9C55b6Dc56da178f9f9a566F1161237b73Ba66",
+        views: "0x72Ec36D3593ba1fc7Aa5dFDc1ADdf551FE599837",
+
+        xenPerBatch: 2500000,
+        supportsStakeClaim: true,
+      },
+
+      EthereumPoW: {
+        label: "EthereumPoW",
+        chainIdHex: "0x2710",
+        chainName: "EthereumPoW",
+        rpcUrls: ["https://mainnet.ethereumpow.org"],
+        nativeCurrency: { name: "EthereumPoW", symbol: "ETHW", decimals: 18 },
+        blockExplorerUrls: ["https://mainnet.ethwscan.com"],
+        nativeSymbol: "ETHW",
+
+        xen: "0x2AB0e9e4eE70FFf1fB9D67031E44F6410170d00e",
+        dxn: "0xc418B123885d732ED042b16e12e259741863F723",
+        dbxen: "0x2A9C55b6Dc56da178f9f9a566F1161237b73Ba66",
+        views: "0x72Ec36D3593ba1fc7Aa5dFDc1ADdf551FE599837",
+
+        xenPerBatch: 2500000,
+        supportsStakeClaim: true,
+      },
+
+      Optimism: {
+        label: "Optimism",
+        chainIdHex: "0xA",
+        chainName: "Optimism",
+        rpcUrls: ["https://mainnet.optimism.io"],
+        nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+        blockExplorerUrls: ["https://optimistic.etherscan.io"],
+        nativeSymbol: "ETH",
+
+        xen: "0xffcbF84650cE02DaFE96926B37a0ac5E34932fa5",
+        dxn: "0xc418B123885d732ED042b16e12e259741863F723",
+        dbxen: "0x2A9C55b6Dc56da178f9f9a566F1161237b73Ba66",
+        views: "0x72Ec36D3593ba1fc7Aa5dFDc1ADdf551FE599837",
+
+        xenPerBatch: 2500000,
+        supportsStakeClaim: true,
+      },
+
+      Base: {
+        label: "Base",
+        chainIdHex: "0x2105",
+        chainName: "Base",
+        rpcUrls: ["https://mainnet.base.org"],
+        nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+        blockExplorerUrls: ["https://basescan.org"],
+        nativeSymbol: "ETH",
+
+        xen: "0xffcbF84650cE02DaFE96926B37a0ac5E34932fa5",
+        dxn: "0x9430A7e6283Fb704Fd1D9302868Bc39d16FE82Ba",
+        dbxen: "0x30782c020FE90614f08a863B41CbB07A2D2D94fF",
+        views: "0xF3281221bA95af0C5BBcBd2474cE8C090233133b",
+
+        xenPerBatch: 2500000,
+        supportsStakeClaim: true,
+      },
+    };
+
+
+
+  let ACTIVE_CHAIN_KEY = "ETH";
+  function cfg() { return CHAIN_CONFIG[ACTIVE_CHAIN_KEY] || CHAIN_CONFIG.ETH; }
+
+    function XEN(){ return cfg().xen; }
+    function DXN(){ return cfg().dxn; }
+    function DBXEN(){ return cfg().dbxen; }
+    function VIEWS(){ return cfg().views; }
+    function XEN_PER_BATCH_NOW(){ return cfg().xenPerBatch || 2500000; }
+
+
+
+  // Chain dropdown (working)
+    const chainPill  = document.getElementById("chainPill");
+    const chainMenu  = document.getElementById("chainMenu");
+    const chainLabel = document.getElementById("chainLabel");
+
+    async function switchChainAndReloadData(chainKey) {
+      const c = CHAIN_CONFIG[chainKey];
+      if (!c || !window.ethereum) return;
+
+      // 1) switch (or add) the chain in MetaMask
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: c.chainIdHex }],
+        });
+      } catch (err) {
+        if (err && err.code === 4902) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: c.chainIdHex,
+              chainName: c.chainName || c.label || chainKey,
+              rpcUrls: c.rpcUrls,
+              nativeCurrency: c.nativeCurrency,
+              blockExplorerUrls: c.blockExplorerUrls
+            }],
+          });
+        } else {
+          console.log("Chain switch rejected:", err);
+          return;
+        }
+      }
+
+      // 2) update app active chain + UI label
+      ACTIVE_CHAIN_KEY = chainKey;
+      chainLabel.textContent = c.label || chainKey;
+
+      // 2.5) IMPORTANT: apply addresses / reader / xenPerBatch for this chain
+      applyChainConfig();
+      renderXen();       // updates "2,500,000" display using new XEN_PER_BATCH
+      syncMaxBtnLabel(); // keeps max/min toggle correct
+
+      // 3) re-create provider/signer on the new chain
+      provider = new ethers.BrowserProvider(window.ethereum);
+
+      // get accounts
+      const accounts = await provider.send("eth_accounts", []);
+      if (!accounts || !accounts.length) {
+        connectBtn.style.display = "";
+        return;
+      }
+
+      signer = await provider.getSigner();
+      userAddress = await signer.getAddress();
+
+      // 4) update top right wallet pill + native symbol
+      addrShort.textContent = shortAddr(userAddress);
+
+      const balWei = await provider.getBalance(userAddress);
+      const sym = (cfg().nativeSymbol || "ETH");
+      ethBal.textContent = Number(ethers.formatEther(balWei)).toFixed(4) + " " + sym;
+
+      connectBtn.style.display = "none";
+
+      // 5) reload all numbers (now using correct chain addresses)
+      await refreshFees();
+      await loadXenBalance();
+      await loadCycleStats();
+      await loadClaimables();
+      await loadStakeInfo();
+
+      wireClaimButtons();
+    }
+
+
+
+    function renderChainMenu() {
+      chainMenu.innerHTML = CHAINS.map(name =>
+        `<button class="chain-item" type="button" data-chain="${name}">${name}</button>`
+      ).join("");
+
+      chainMenu.querySelectorAll(".chain-item").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const key = btn.dataset.chain;
+          if (!CHAIN_CONFIG[key]) return;
+
+          chainMenu.classList.remove("show");
+
+          // THIS is the only thing that happens on click
+          await switchChainAndReloadData(key);
+        });
+      });
+    }
+
+
+
+    if (chainPill && chainMenu && chainLabel){
+    renderChainMenu();
+
+    chainPill.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        chainMenu.classList.toggle("show");
     });
-  });
 
-  const XEN_ADDRESS = "0x06450dee7fd2fb8e39061434babcfc05599a6fb8";
-  const DXN_ADDRESS = "0x80f0c1c49891dcfdd40b6e0f960f84e6042bcb6f";
+    document.addEventListener("click", () => {
+        chainMenu.classList.remove("show");
+    });
+
+    chainMenu.addEventListener("click", (e) => e.stopPropagation());
+    }
+
+
+
+    let XEN_ADDRESS = "0x06450dee7fd2fb8e39061434babcfc05599a6fb8";
+    let DXN_ADDRESS = "0x80f0c1c49891dcfdd40b6e0f960f84e6042bcb6f";
 
   const copyXen = document.getElementById("copyXen");
   const copyDxn = document.getElementById("copyDxn");
@@ -697,10 +1245,10 @@
     copyToClipboard(DXN_ADDRESS);
   });
 
-  const XEN_PER_BATCH = 2500000;
+  let XEN_PER_BATCH = 2500000;
   const MAX_BATCHES = 10000;
 
-  const DBXEN_ADDRESS = "0xF5c80c305803280B587F8cabBcCdC4d9BF522AbD";
+  let DBXEN_ADDRESS = "0xF5c80c305803280B587F8cabBcCdC4d9BF522AbD";
 
   const DBXEN_ABI = [
     "function burnBatch(uint256 batches) payable",
@@ -728,9 +1276,11 @@
     "function accStakeCycle(address,uint256) view returns (uint256)",
     "function getUnclaimedRewards(address) view returns (uint256)",
     "function getUnclaimedFees(address) view returns (uint256)",
+    "function i_initialTimestamp() view returns (uint256)",
+    "function i_periodDuration() view returns (uint256)",
   ];
 
-  const DBXEN_READER_ADDRESS = "0xf032f7FB8258728A1938473B2115BB163d5Da593";
+  let DBXEN_READER_ADDRESS = "0xf032f7FB8258728A1938473B2115BB163d5Da593";
   const DBXEN_READER_ABI = [
     "function dbxen() view returns (address)",
     "function calculateCycleReward() view returns (uint256)",
@@ -738,6 +1288,26 @@
     "function getUnclaimedRewards(address account) view returns (uint256)",
     "function getAccWithdrawableStake(address) view returns (uint256)"
   ];
+
+  function applyChainConfig() {
+    const c = cfg();
+
+    if (c.xen) XEN_ADDRESS = c.xen;
+    if (c.dxn) DXN_ADDRESS = c.dxn;
+    if (c.dbxen) DBXEN_ADDRESS = c.dbxen;
+
+    // THIS is the key:
+    DBXEN_READER_ADDRESS = c.views || "";
+
+    XEN_PER_BATCH = c.xenPerBatch || 2500000;
+
+    console.log("applyChainConfig", ACTIVE_CHAIN_KEY, {
+      XEN_ADDRESS, DXN_ADDRESS, DBXEN_ADDRESS, DBXEN_READER_ADDRESS, XEN_PER_BATCH
+    });
+  }
+
+
+
 
   const FEE_GAS_PAD = 39400n;
   const BATCH_SLOPE = 5n;
@@ -765,6 +1335,9 @@
   let maxUnstakeWei = 0n;
   let __dxnWalletWei = 0n;
   let __dxnWithdrawableWei = 0n;
+  let __cycleTimer = null;
+  let __currentCycleNum = null;
+
 
   function clampBatches(n) {
     n = Math.floor(Number(n || 1));
@@ -789,6 +1362,24 @@
     xenAmountEl.textContent = fmtInt(xen);
     totalXenBurnedEl.textContent = fmtInt(xen);
   }
+  function syncMaxBtnLabel(){
+    const b = clampBatches(batchInput.value);
+    if (b >= MAX_BATCHES){
+        maxBtn.textContent = "⬇ Min";
+        maxBtn.dataset.mode = "min";
+    } else {
+        maxBtn.textContent = "⬆ Max";
+        maxBtn.dataset.mode = "max";
+    }
+    }
+
+    async function setBatches(n){
+    batchInput.value = clampBatches(n);
+    renderXen();
+    syncMaxBtnLabel();
+    await refreshFees();
+    }
+
 
   async function connectWallet() {
     if (!window.ethereum) {
@@ -802,7 +1393,12 @@
     addrShort.textContent = shortAddr(userAddress);
 
     const balWei = await provider.getBalance(userAddress);
-    ethBal.textContent = Number(ethers.formatEther(balWei)).toFixed(4) + " ETH";
+    const sym = (cfg()?.nativeSymbol) || "ETH";
+    ethBal.textContent =
+      Number(ethers.formatEther(balWei)).toFixed(4) + " " + (cfg().nativeSymbol || "ETH");
+
+    connectBtn.style.display = "none";
+
 
     await refreshFees();
     await loadXenBalance();
@@ -812,6 +1408,116 @@
 
     wireClaimButtons();
   }
+
+  // ===== History via Vercel (Moralis) =====
+  const HISTORY_API_BASE = "https://dxnpot-api.vercel.app";
+
+  function apiChainKey() {
+    switch (ACTIVE_CHAIN_KEY) {
+      case "ETH": return "eth";
+      case "Polygon": return "polygon";
+      case "PulseChain": return "pulse";
+      default: return "eth";
+    }
+  }
+
+  // Burn method selector for burnBatch(uint256)
+  const BURN_METHOD_ID = "0x037c5414";
+
+  function decodeBurnBatches(inputHex){
+    try{
+      if (!inputHex || inputHex.length < 10) return null;
+      if (!inputHex.startsWith(BURN_METHOD_ID)) return null;
+      const data = "0x" + inputHex.slice(10);
+      const [b] = ethers.AbiCoder.defaultAbiCoder().decode(["uint256"], data);
+      return Number(b);
+    }catch{
+      return null;
+    }
+  }
+
+  function dayTimeFromIso(iso){
+    try { return new Date(iso).toLocaleString(); } catch { return "—"; }
+  }
+
+  function fmtNum(n){ return Number(n).toLocaleString("en-US"); }
+
+  async function loadHistory() {
+    const status = document.getElementById("historyStatus");
+    const rowsEl = document.getElementById("burnRows");
+    const pageEl = document.getElementById("pageLabel");
+
+    status.textContent = "Loading…";
+    rowsEl.innerHTML = "";
+    pageEl.textContent = `Page 1`;
+
+    try {
+      const chain = apiChainKey();
+      const url = `${HISTORY_API_BASE}/api/history?chain=${chain}&address=${userAddress}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!data.ok) throw new Error("history api failed");
+
+      // Filter ONLY burnBatch calls to DBXEN
+      const burns = [];
+      for (const tx of data.items) {
+        if (!tx.to) continue;
+        if (tx.to.toLowerCase() !== DBXEN_ADDRESS.toLowerCase()) continue;
+
+        // Moralis native tx doesn't include input by default in our sanitized response.
+        // So for now: show txs to DBXEN and compute totals from those.
+        // (Next step we can include input in the backend for exact burnBatch filtering.)
+        burns.push(tx);
+        if (burns.length >= 10) break;
+      }
+
+      // Totals (temporary): sum ETH value sent to DBXEN in these txs
+      let totalEthWei = 0n;
+      for (const tx of burns) {
+        totalEthWei += BigInt(tx.value || "0");
+      }
+
+      document.getElementById("totXen").textContent = "—"; // we’ll make exact next
+      document.getElementById("totDxn").textContent = "—";
+      document.getElementById("totEth").textContent = fmtETH6(totalEthWei) + " " + (cfg().nativeSymbol || "ETH");
+
+      if (!burns.length) {
+        rowsEl.innerHTML = `<div class="calloutBig"><div class="line"><span class="v">No recent DBXEN txs found.</span></div></div>`;
+        status.textContent = "Loaded";
+        return;
+      }
+
+      rowsEl.innerHTML = burns.map(tx => `
+        <div class="calloutBig">
+          <div class="line" style="justify-content:space-between;">
+            <span class="k">${dayTimeFromIso(tx.ts)}</span>
+            <a class="mono" style="color:var(--yellow); text-decoration:none;"
+              href="${cfg().blockExplorerUrls[0]}/tx/${tx.hash}"
+              target="_blank" rel="noreferrer">View tx</a>
+          </div>
+          <div class="line">
+            <span class="v">Value:</span>
+            <span class="pct warn">${fmtETH6(BigInt(tx.value || "0"))} ${cfg().nativeSymbol || "ETH"}</span>
+          </div>
+        </div>
+      `).join("");
+
+      status.textContent = "Loaded";
+    } catch (e) {
+      console.log(e);
+      status.textContent = "Error loading history";
+      rowsEl.innerHTML = "";
+    }
+  }
+
+  // Wire buttons (no paging yet)
+  document.getElementById("loadHistoryBtn")?.addEventListener("click", async () => {
+    if (!userAddress) { alert("Connect wallet first"); return; }
+    await loadHistory();
+  });
+
+
 
   async function loadStakeInfo() {
     const totalEl = document.getElementById("totalStakedVal");
@@ -829,35 +1535,44 @@
       return;
     }
 
+    // DXN wallet balance works without reader
     try {
       const dxn = new ethers.Contract(DXN_ADDRESS, ERC20_ABI, provider);
       const bal = await dxn.balanceOf(userAddress);
-
       __dxnWalletWei = bal;
       if (balEl) balEl.textContent = fmtDXN6(bal);
+    } catch (e) {
+      console.log("DXN balance failed:", e);
+      if (balEl) balEl.textContent = "—";
+    }
 
+    // stake numbers require reader/views
+    if (!DBXEN_READER_ADDRESS) {
+      if (totalEl) totalEl.textContent = "—";
+      if (pendingEl) pendingEl.textContent = "—";
+      return;
+    }
+
+    try {
       const reader = new ethers.Contract(DBXEN_READER_ADDRESS, DBXEN_READER_ABI, provider);
       const withdrawable = await reader.getAccWithdrawableStake(userAddress);
 
       __dxnWithdrawableWei = withdrawable;
       maxUnstakeWei = withdrawable;
 
-      const pending = 0n;
-
       if (totalEl) totalEl.textContent = fmtDXN6(withdrawable);
-      if (pendingEl) pendingEl.textContent = fmtDXN6(pending);
-
+      if (pendingEl) pendingEl.textContent = fmtDXN6(0n); // you don't have pending wired yet
     } catch (e) {
       console.log("loadStakeInfo failed:", e);
       if (totalEl) totalEl.textContent = "—";
       if (pendingEl) pendingEl.textContent = "—";
-      if (balEl) balEl.textContent = "—";
     }
   }
 
+
   async function loadCycleStats() {
-    const cycleEl = document.getElementById("currentCycle");
-    const mintedEl = document.getElementById("dxnMintedCycle");
+    const cycleEl = document.getElementById("cycleNum");
+    const mintedEl = document.getElementById("dxnThisCycle");
 
     if (cycleEl) cycleEl.textContent = "…";
     if (mintedEl) mintedEl.textContent = "…";
@@ -868,10 +1583,13 @@
       return;
     }
 
+    // currentCycle is on DBXEN (might not exist on chains where DBXEN address is wrong)
     try {
       const dbxen = new ethers.Contract(DBXEN_ADDRESS, DBXEN_ABI, provider);
       const cycle = await dbxen.currentCycle.staticCall();
+      __currentCycleNum = cycle;
       if (cycleEl) cycleEl.textContent = cycle.toString();
+      await startNextCycleCountdown();
     } catch (e) {
       console.log("currentCycle() failed:", e);
       if (cycleEl) cycleEl.textContent = "—";
@@ -879,11 +1597,14 @@
       return;
     }
 
+    // mintedThisCycle requires reader/views
+    if (!DBXEN_READER_ADDRESS) {
+      if (mintedEl) mintedEl.textContent = "—";
+      return;
+    }
+
     try {
       const reader = new ethers.Contract(DBXEN_READER_ADDRESS, DBXEN_READER_ABI, provider);
-      const main = await reader.dbxen();
-      console.log("reader.dbxen() =>", main);
-
       const rewardWei = await reader.calculateCycleReward();
       if (mintedEl) mintedEl.textContent = fmtDXN6(rewardWei);
     } catch (e) {
@@ -891,6 +1612,7 @@
       if (mintedEl) mintedEl.textContent = "—";
     }
   }
+
 
   async function loadClaimables() {
     const dxnEl = document.getElementById("autoDxnVal");
@@ -905,24 +1627,28 @@
       return;
     }
 
+    if (!DBXEN_READER_ADDRESS) {
+      if (dxnEl) dxnEl.textContent = "—";
+      if (ethEl) ethEl.textContent = "—";
+      return;
+    }
+
     try {
       const reader = new ethers.Contract(DBXEN_READER_ADDRESS, DBXEN_READER_ABI, provider);
-
       const feesWei = await reader.getUnclaimedFees(userAddress);
       const rewardsWei = await reader.getUnclaimedRewards(userAddress);
 
-      console.log("reader fees eth:", ethers.formatEther(feesWei));
-      console.log("reader rewards dxn:", ethers.formatUnits(rewardsWei, 18));
-
-      if (ethEl) ethEl.textContent = fmtETH6(feesWei);
       if (dxnEl) dxnEl.textContent = fmtDXN6(rewardsWei);
 
+      const sym = (cfg().nativeSymbol || "ETH");
+      if (ethEl) ethEl.textContent = `${fmtETH6(feesWei)} ${sym}`;
     } catch (e) {
       console.log("loadClaimables failed:", e);
       if (dxnEl) dxnEl.textContent = "—";
       if (ethEl) ethEl.textContent = "—";
     }
   }
+
 
   async function loadXenBalance(){
     const el = document.getElementById("yourXen");
@@ -956,12 +1682,8 @@
     const discount = b * (maxBps - (BATCH_SLOPE * b));
     const gasPrice = await getGasPriceWei();
     if (!gasPrice) throw new Error("No gasPrice");
-    let gasUsed;
-    try {
-      gasUsed = await dbxenRead.burnBatch.estimateGas(batches, { from: userAddress, value: 0n });
-    } catch {
-      gasUsed = 220000n;
-    }
+    // MetaMask estimateGas is flaky (-32603). Use a stable fallback.
+    let gasUsed = 220000n;
 
     const protocolFee =
       ((gasUsed + FEE_GAS_PAD) * gasPrice * discount) / maxBps;
@@ -1002,6 +1724,193 @@
     }
   }
 
+  // ===============================
+  // NEXT CYCLE COUNTDOWN (DBXEN)
+  // (safe version: no contract calls)
+  // ===============================
+  function fmtHMS(totalSec){
+    const s = Math.max(0, Math.floor(totalSec));
+    const h = String(Math.floor(s / 3600)).padStart(2, "0");
+    const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+    const ss = String(s % 60).padStart(2, "0");
+    return `${h}:${m}:${ss}`;
+  }
+
+  async function startNextCycleCountdown(){
+    const el = document.getElementById("nextCycleIn");
+    if (!el) return;
+
+    if (__cycleTimer) clearInterval(__cycleTimer);
+
+    if (!provider || __currentCycleNum == null){
+      el.textContent = "—";
+      return;
+    }
+
+    let baseTs = 0;      // chain timestamp (sec)
+    let baseLocal = 0;   // local time (ms)
+    let genesis = 1679493611; // fallback (YOU confirmed this in console)
+    const DAY = 86400;
+
+    // IMPORTANT: call i_initialTimestamp() on the REAL DBXEN contract
+    const GENESIS_ABI = ["function i_initialTimestamp() view returns (uint256)"];
+
+    async function syncAll(){
+      try{
+        const blk = await provider.getBlock("latest");
+        baseTs = Number(blk.timestamp);
+        baseLocal = Date.now();
+      }catch(e){
+        console.log("countdown block sync failed:", e);
+        baseTs = 0;
+        return;
+      }
+
+      // Try reading genesis from DBXEN contract (if it exists)
+      try{
+        const g = new ethers.Contract(DBXEN_ADDRESS, GENESIS_ABI, provider);
+        const v = await g.i_initialTimestamp();
+        genesis = Number(v);
+      }catch(e){
+        // keep fallback genesis
+        console.log("i_initialTimestamp() failed, using fallback genesis:", e);
+      }
+    }
+
+    function secondsToNext(nowTs){
+      // next cycle boundary based on genesis + (cycle+1)*DAY
+      const next = genesis + (Number(__currentCycleNum) + 1) * DAY;
+      return next - nowTs;
+    }
+
+    await syncAll();
+
+    __cycleTimer = setInterval(async () => {
+      if (!baseTs){
+        el.textContent = "—";
+        return;
+      }
+
+      const elapsed = Math.floor((Date.now() - baseLocal) / 1000);
+      const nowTs = baseTs + elapsed;
+
+      el.textContent = fmtHMS(secondsToNext(nowTs));
+
+      // resync once per minute
+      if (elapsed % 60 === 0) await syncAll();
+    }, 1000);
+  }
+
+
+
+  // DBXen Burn event topic0 (Burn(indexed user, uint256 batches))
+    const DBXEN_BURN_TOPIC0 = "0xcc16f5dbb4873280815c1ee09dbd06736cffcc184412cf7a71a0fdb75d397ca5";
+    const DBXEN_FROM_BLOCK = 16883586; // DBXen creation block
+
+    const PAGE_SIZE = 10;
+    let burnItems = [];
+    let burnPage = 0;
+
+    function padTopicAddr(addr){
+    return ethers.zeroPadValue(addr, 32);
+    }
+
+    function fmtTime(ms){
+    return new Date(ms).toLocaleString();
+    }
+
+    function txUrl(hash){
+    return `https://etherscan.io/tx/${hash}`;
+    }
+
+    async function loadBurnHistoryOnChain(){
+    // needs provider + userAddress
+    const logs = await provider.getLogs({
+        address: DBXEN_ADDRESS,
+        fromBlock: DBXEN_FROM_BLOCK,
+        toBlock: "latest",
+        topics: [DBXEN_BURN_TOPIC0, padTopicAddr(userAddress)]
+    });
+
+    // Burn event has 1 non-indexed uint256 in data = batches
+    burnItems = await Promise.all(logs.map(async (log) => {
+        const batches = Number(ethers.AbiCoder.defaultAbiCoder().decode(["uint256"], log.data)[0]);
+        const xen = batches * XEN_PER_BATCH;
+
+        let timeMs = Date.now();
+        try{
+        const blk = await provider.getBlock(log.blockNumber);
+        if (blk?.timestamp) timeMs = Number(blk.timestamp) * 1000;
+        }catch{}
+
+        return {
+        timeMs,
+        batches,
+        xen,
+        txHash: log.transactionHash,
+        blockNumber: log.blockNumber
+        };
+    }));
+
+    // newest first
+    burnItems.sort((a,b) => b.blockNumber - a.blockNumber);
+
+    renderBurnTotals();
+    renderBurnPage(0);
+    }
+
+    function renderBurnTotals(){
+    const totX = document.getElementById("totXenBurned");
+    if (!totX) return;
+
+    const totalXen = burnItems.reduce((sum, it) => sum + it.xen, 0);
+    totX.textContent = totalXen.toLocaleString("en-US");
+
+    // For now: set earned totals to "—" until we wire lifetime earned
+    const totD = document.getElementById("totDxnEarned");
+    const totE = document.getElementById("totEthFees");
+    if (totD) totD.textContent = "—";
+    if (totE) totE.textContent = "—";
+    }
+
+    function renderBurnPage(pageIdx){
+    const rowsEl = document.getElementById("burnRows");
+    const pageEl = document.getElementById("burnPage");
+    const pagesEl = document.getElementById("burnPages");
+    if (!rowsEl || !pageEl || !pagesEl) return;
+
+    const pages = Math.max(1, Math.ceil(burnItems.length / PAGE_SIZE));
+    burnPage = Math.max(0, Math.min(pages - 1, pageIdx));
+
+    pageEl.textContent = String(burnPage + 1);
+    pagesEl.textContent = String(pages);
+
+    const slice = burnItems.slice(burnPage * PAGE_SIZE, burnPage * PAGE_SIZE + PAGE_SIZE);
+
+    if (slice.length === 0){
+        rowsEl.innerHTML = `<div style="opacity:.7;">No burns found for this wallet.</div>`;
+        return;
+    }
+
+    rowsEl.innerHTML = slice.map(it => `
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border:1px solid rgba(255,255,255,.08);background:rgba(2,6,23,.25);padding:10px 12px;border-radius:12px;">
+        <div style="display:grid;gap:6px;">
+            <div style="font-weight:900;">${fmtTime(it.timeMs)}</div>
+            <div style="opacity:.85;">Batches: <b>${it.batches.toLocaleString("en-US")}</b> • XEN: <b>${it.xen.toLocaleString("en-US")}</b></div>
+        </div>
+        <a class="btn-yellow" style="height:34px;border-radius:10px;padding:0 10px;font-size:12px;"
+            target="_blank" rel="noopener" href="${txUrl(it.txHash)}">Tx</a>
+        </div>
+    `).join("");
+    }
+
+    // paging buttons
+    const prevBtn = document.getElementById("burnPrev");
+    const nextBtn = document.getElementById("burnNext");
+    if (prevBtn) prevBtn.addEventListener("click", (e) => { e.preventDefault(); renderBurnPage(burnPage - 1); });
+    if (nextBtn) nextBtn.addEventListener("click", (e) => { e.preventDefault(); renderBurnPage(burnPage + 1); });
+
+
   async function refreshFees() {
     if (!provider) {
       pfEl.textContent = "~";
@@ -1013,8 +1922,10 @@
       const b = clampBatches(batchInput.value);
       const { protocolFee, totalCost } = await calcDbxenFee(b);
 
-      pfEl.textContent = "~ " + fmtEth(protocolFee) + " ETH";
-      ttcEl.textContent = "~ " + fmtEth(totalCost) + " ETH";
+      const sym = (cfg()?.nativeSymbol) || "ETH";
+      pfEl.textContent  = "~ " + fmtEth(protocolFee) + " " + sym;
+      ttcEl.textContent = "~ " + fmtEth(totalCost) + " " + sym;
+
 
       burnBtn.disabled = false;
       burnBtn.style.opacity = "1";
@@ -1143,28 +2054,30 @@
 
   connectBtn.addEventListener("click", connectWallet);
 
-  minusBtn.addEventListener("click", async () => {
-    batchInput.value = clampBatches(Number(batchInput.value) - 1);
-    renderXen();
-    await refreshFees();
-  });
+  minusBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await setBatches(Number(batchInput.value) - 1);
+    });
 
-  plusBtn.addEventListener("click", async () => {
-    batchInput.value = clampBatches(Number(batchInput.value) + 1);
-    renderXen();
-    await refreshFees();
-  });
+    plusBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await setBatches(Number(batchInput.value) + 1);
+    });
 
-  maxBtn.addEventListener("click", async () => {
-    batchInput.value = MAX_BATCHES;
-    renderXen();
-    await refreshFees();
-  });
+    maxBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const mode = maxBtn.dataset.mode || "max";
+    if (mode === "max") await setBatches(MAX_BATCHES);
+    else await setBatches(1);
+    });
+
 
   batchInput.addEventListener("input", async () => {
     renderXen();
+    syncMaxBtnLabel();
     await refreshFees();
-  });
+    });
+
 
   burnBtn.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -1198,8 +2111,20 @@
 
   burnBtn.disabled = true;
   burnBtn.style.opacity = "0.6";
+  applyChainConfig();
   renderXen();
-  refreshFees();
+  syncMaxBtnLabel();
+
+  window.addEventListener("load", async () => {
+    if (!window.ethereum) return;
+
+    const accts = await window.ethereum.request({ method: "eth_accounts" });
+    if (!accts || accts.length === 0) return;
+
+    // auto-connect
+    try { await connectWallet(); } catch (e) { console.log("auto-connect failed", e); }
+    });
+
   </script>
 </body>
 </html>
