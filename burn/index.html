@@ -1472,6 +1472,9 @@
   
       // ✅ Your API returns txs + erc20
       const txs = Array.isArray(data.txs) ? data.txs : [];
+      console.log("history debug txs sample", txs.slice(0, 5));
+      console.log("DBXEN_ADDRESS", DBXEN_ADDRESS);
+
       const erc20 = Array.isArray(data.erc20) ? data.erc20 : [];
   
       // --- decode burnBatch(uint256) ---
