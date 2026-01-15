@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     // GET https://deep-index.moralis.io/api/v2.2/:address/erc20/transfers :contentReference[oaicite:1]{index=1}
     const erc20Url =
       `https://deep-index.moralis.io/api/v2.2/${address}/erc20/transfers` +
-      `?chain=${encodeURIComponent(moralisChain)}&order=DESC&limit=200`;
+      `?chain=${encodeURIComponent(moralisChain)}&order=DESC&limit=100`;
 
     // NOTE: “internal transactions by wallet” is not reliably available as a simple v2.2 wallet endpoint.
     // So we return an empty internals array for now (no more 404 breaking your whole response).
