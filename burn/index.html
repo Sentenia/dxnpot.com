@@ -1442,6 +1442,9 @@
 
   function fmtNum(n){ return Number(n).toLocaleString("en-US"); }
 
+  let __burnPage = 1;
+  const __burnPageSize = 10;
+
   async function loadHistory(){
     const status = document.getElementById("historyStatus");
     const pageLabel = document.getElementById("pageLabel");
