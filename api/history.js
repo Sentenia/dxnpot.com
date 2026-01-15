@@ -1,31 +1,25 @@
 export default async function handler(req, res) {
-  // ✅ CORS (must be FIRST)
+  // ---------- CORS ----------
   const origin = req.headers.origin || "";
   const allowlist = new Set([
     "https://dxnpot.com",
     "https://www.dxnpot.com",
     "http://127.0.0.1:5500",
     "http://localhost:5500",
-    "http://127.0.0.1:3000",
     "http://localhost:3000",
   ]);
 
-  // If origin matches allowlist, echo it back (best practice)
-  if (allowlist.has(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  } else {
-    // Optional: you can leave it blank instead of "*"
-    // res.setHeader("Access-Control-Allow-Origin", "*");
-  }
+  // If origin is in allowlist, echo it. Otherwise allow all (you can tighten later).
+  const allowOrigin = allowlist.has(origin) ? origin : "*";
 
+  res.setHeader("Access-Control-Allow-Origin", allowOrigin);
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Max-Age", "86400");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-API-Key");
 
-  // ✅ Handle preflight
+  // Preflight
   if (req.method === "OPTIONS") {
-    return res.status(204).end();
+    return res.status(200).end();
   }
 
   try {
@@ -36,9 +30,11 @@ export default async function handler(req, res) {
 
     const MORALIS_KEY = process.env.MORALIS_API_KEY;
     if (!MORALIS_KEY) {
-      return res.status(500).json({ ok: false, error: "missing_key" });
+      return res.status(200).json({ ok: false, error: "missing_key" });
     }
 
+    // Moralis chain values are like: eth, polygon, bsc, avalanche, base...
+    // (PulseChain may not be supported depending on Moralis plan.)
     const moralisChain = chain === "pulse" ? "0x171" : chain;
 
     const headers = {
@@ -46,47 +42,50 @@ export default async function handler(req, res) {
       "X-API-Key": MORALIS_KEY,
     };
 
+    // ✅ Native transactions by wallet (CORRECT ENDPOINT)
+    // Docs show: GET https://deep-index.moralis.io/api/v2.2/:address?chain=eth 
     const txUrl =
-      `https://deep-index.moralis.io/api/v2.2/${address}/transactions` +
+      `https://deep-index.moralis.io/api/v2.2/${address}` +
       `?chain=${encodeURIComponent(moralisChain)}&order=DESC&limit=100`;
 
+    // ✅ ERC20 transfers by wallet (this one you already had right)
+    // GET https://deep-index.moralis.io/api/v2.2/:address/erc20/transfers :contentReference[oaicite:1]{index=1}
     const erc20Url =
       `https://deep-index.moralis.io/api/v2.2/${address}/erc20/transfers` +
       `?chain=${encodeURIComponent(moralisChain)}&order=DESC&limit=200`;
 
-    const internalUrl =
-      `https://deep-index.moralis.io/api/v2.2/${address}/internal-transactions` +
-      `?chain=${encodeURIComponent(moralisChain)}&order=DESC&limit=200`;
-
-    const [txResp, erc20Resp, internalResp] = await Promise.all([
+    // NOTE: “internal transactions by wallet” is not reliably available as a simple v2.2 wallet endpoint.
+    // So we return an empty internals array for now (no more 404 breaking your whole response).
+    const [txResp, erc20Resp] = await Promise.all([
       fetch(txUrl, { headers }),
       fetch(erc20Url, { headers }),
-      fetch(internalUrl, { headers }),
     ]);
 
-    // If Moralis returns HTML errors sometimes, guard it:
-    const safeJson = async (r) => {
-      const text = await r.text();
-      try { return JSON.parse(text); }
-      catch { return { __raw: text, __status: r.status }; }
-    };
+    // If Moralis returns non-JSON HTML error pages, guard it.
+    const txText = await txResp.text();
+    const erc20Text = await erc20Resp.text();
 
-    const [txJson, erc20Json, internalJson] = await Promise.all([
-      safeJson(txResp),
-      safeJson(erc20Resp),
-      safeJson(internalResp),
-    ]);
+    let txJson, erc20Json;
+    try { txJson = JSON.parse(txText); } catch { txJson = null; }
+    try { erc20Json = JSON.parse(erc20Text); } catch { erc20Json = null; }
 
-    // If any came back as HTML / non-json, return a clean error
-    if (txJson.__raw || erc20Json.__raw || internalJson.__raw) {
-      return res.status(502).json({
+    if (!txResp.ok || !txJson) {
+      return res.status(200).json({
         ok: false,
         error: "moralis_bad_response",
-        status: {
-          tx: txJson.__status,
-          erc20: erc20Json.__status,
-          internal: internalJson.__status,
-        },
+        status: { tx: txResp.status },
+        bodyPreview: String(txText).slice(0, 200),
+        url: txUrl,
+      });
+    }
+
+    if (!erc20Resp.ok || !erc20Json) {
+      return res.status(200).json({
+        ok: false,
+        error: "moralis_bad_response",
+        status: { erc20: erc20Resp.status },
+        bodyPreview: String(erc20Text).slice(0, 200),
+        url: erc20Url,
       });
     }
 
@@ -95,28 +94,20 @@ export default async function handler(req, res) {
       from: t.from_address || t.from,
       to: t.to_address || t.to,
       value: t.value,
-      input: t.input,
-      block: t.block_number || t.block,
-      ts: t.block_timestamp || t.ts,
+      input: t.input, // IMPORTANT for decoding burnBatch
+      block: t.block_number,
+      ts: t.block_timestamp,
     }));
 
     const erc20 = (erc20Json?.result || erc20Json?.items || []).map((t) => ({
-      tx_hash: t.transaction_hash || t.tx_hash,
-      from: t.from_address || t.from,
-      to: t.to_address || t.to,
+      tx_hash: t.transaction_hash,
+      from: t.from_address,
+      to: t.to_address,
       value: t.value,
-      token_address: t.address || t.token_address,
+      token_address: t.address,
       token_symbol: t.token_symbol,
       token_decimals: t.token_decimals,
-      ts: t.block_timestamp || t.ts,
-    }));
-
-    const internals = (internalJson?.result || internalJson?.items || []).map((t) => ({
-      hash: t.transaction_hash || t.hash,
-      from: t.from_address || t.from,
-      to: t.to_address || t.to,
-      value: t.value,
-      ts: t.block_timestamp || t.ts,
+      ts: t.block_timestamp,
     }));
 
     return res.status(200).json({
@@ -125,10 +116,10 @@ export default async function handler(req, res) {
       address,
       txs,
       erc20,
-      internals,
+      internals: [], // not used for now
     });
   } catch (e) {
-    return res.status(500).json({
+    return res.status(200).json({
       ok: false,
       error: "server_error",
       message: String(e?.message || e),
