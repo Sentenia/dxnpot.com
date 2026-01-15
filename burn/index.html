@@ -237,12 +237,12 @@
 
     /* Totals + History helpers */
     .grid{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:14px;
     }
-    @media (max-width: 900px){
-    .grid{ grid-template-columns: 1fr; }
+    @media (max-width: 1100px){
+      .grid{ grid-template-columns: 1fr; }
     }
 
     .h{
@@ -762,6 +762,17 @@
         <span class="v mono" id="pageLabel">Page 1</span>
       </div>
     </div>
+
+  <!-- Total XEN Burned (running total) -->
+  <div class="card">
+    <h3 class="h">Total XEN Burned</h3>
+  
+    <div class="calloutBig" style="padding:18px;">
+      <div style="font-size:44px; font-weight:900; letter-spacing:-.5px;" class="mono" id="totXenRun">—</div>
+      <div style="margin-top:6px; color:var(--muted); font-weight:800;">Across all detected burns (this wallet)</div>
+    </div>
+  </div>
+
 
     <div id="burnRows" style="margin-top:12px; display:flex; flex-direction:column; gap:10px;"></div>
 
@@ -1534,6 +1545,7 @@
       // ✅ totals
       const totalXen = burnsAll.reduce((s, r) => s + (r.xen || 0), 0);
       document.getElementById("totXen").textContent = fmtNum(totalXen);
+      document.getElementById("totXenRun").textContent = fmtNum(totalXen);
   
       // ✅ dxn claimed = DXN transfer DBXEN -> user
       let dxnWei = 0n;
