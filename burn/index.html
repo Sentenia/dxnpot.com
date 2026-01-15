@@ -1546,11 +1546,18 @@
       for (const t of erc20){
         if (!t?.token_address) continue;
         if (String(t.token_address).toLowerCase() !== String(DXN_ADDRESS).toLowerCase()) continue;
+      
         if (!t?.to) continue;
         if (String(t.to).toLowerCase() !== String(userAddress).toLowerCase()) continue;
+      
+        // ✅ only count transfers FROM DBXEN
+        if (!t?.from) continue;
+        if (String(t.from).toLowerCase() !== String(DBXEN_ADDRESS).toLowerCase()) continue;
+      
         dxnWei += BigInt(t.value || "0");
       }
       document.getElementById("totDxn").textContent = fmtDXN6(dxnWei);
+
   
       // ETH claimed: keep placeholder for now
       document.getElementById("totEth").textContent = "—";
