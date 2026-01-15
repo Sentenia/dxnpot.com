@@ -1576,6 +1576,20 @@
     await loadHistory();
   });
 
+  // Prev / Next paging
+  document.getElementById("prevPageBtn")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    if (__burnPage > 1) __burnPage--;
+    await loadHistory();
+  });
+  
+  document.getElementById("nextPageBtn")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    __burnPage++;
+    await loadHistory();
+  });
+
+
 
 
 
