@@ -1469,6 +1469,8 @@
     `).join("");
   }
 
+  console.log("scope check BEFORE loadHistory:", typeof renderBurnRows);
+
   async function loadHistory(){
     const status = document.getElementById("historyStatus");
     const pageLabel = document.getElementById("pageLabel");
