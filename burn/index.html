@@ -1442,74 +1442,103 @@
 
   function fmtNum(n){ return Number(n).toLocaleString("en-US"); }
 
-  async function loadHistory() {
+  async function loadHistory(){
     const status = document.getElementById("historyStatus");
-    const rowsEl = document.getElementById("burnRows");
-    const pageEl = document.getElementById("pageLabel");
-
+    const pageLabel = document.getElementById("pageLabel");
+  
     status.textContent = "Loading…";
-    rowsEl.innerHTML = "";
-    pageEl.textContent = `Page 1`;
-
-    try {
-      const chain = apiChainKey();
-      const url = `${HISTORY_API_BASE}/api/history?chain=${chain}&address=${userAddress}`;
-
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!data.ok) throw new Error("history api failed");
-
-      // Filter ONLY burnBatch calls to DBXEN
-      const burns = [];
-      for (const tx of data.items) {
-        if (!tx.to) continue;
-        if (tx.to.toLowerCase() !== DBXEN_ADDRESS.toLowerCase()) continue;
-
-        // Moralis native tx doesn't include input by default in our sanitized response.
-        // So for now: show txs to DBXEN and compute totals from those.
-        // (Next step we can include input in the backend for exact burnBatch filtering.)
-        burns.push(tx);
-        if (burns.length >= 10) break;
+  
+    try{
+      if (!userAddress) { alert("Connect wallet first"); status.textContent = "Not connected"; return; }
+  
+      const chainKey = (ACTIVE_CHAIN_KEY || "ETH").toLowerCase();
+      const chainParam =
+        chainKey === "pulsechain" ? "pulse" :
+        chainKey === "polygon" ? "polygon" :
+        chainKey === "bsc" ? "bsc" :
+        chainKey === "avalanche" ? "avalanche" :
+        chainKey === "base" ? "base" :
+        "eth";
+  
+      const url = `https://dxnpot-api.vercel.app/api/history?chain=${encodeURIComponent(chainParam)}&address=${encodeURIComponent(userAddress)}`;
+  
+      const r = await fetch(url);
+      const data = await r.json();
+  
+      if (!data || !data.ok) throw new Error("history api failed");
+  
+      // ✅ Your API returns txs + erc20
+      const txs = Array.isArray(data.txs) ? data.txs : [];
+      const erc20 = Array.isArray(data.erc20) ? data.erc20 : [];
+  
+      // --- decode burnBatch(uint256) ---
+      const BURN_METHOD_ID = "0x037c5414"; // you already use this
+      function decodeBurnBatches(inputHex){
+        try{
+          if (!inputHex || inputHex.length < 10) return null;
+          if (!inputHex.startsWith(BURN_METHOD_ID)) return null;
+          const argData = "0x" + inputHex.slice(10);
+          const [b] = ethers.AbiCoder.defaultAbiCoder().decode(["uint256"], argData);
+          return Number(b);
+        }catch{
+          return null;
+        }
       }
-
-      // Totals (temporary): sum ETH value sent to DBXEN in these txs
-      let totalEthWei = 0n;
-      for (const tx of burns) {
-        totalEthWei += BigInt(tx.value || "0");
+  
+      // filter burns: to == DBXEN_ADDRESS and input starts with burn selector
+      const burnsAll = [];
+      for (const t of txs){
+        if (!t?.to) continue;
+        if (String(t.to).toLowerCase() !== String(DBXEN_ADDRESS).toLowerCase()) continue;
+  
+        const batches = decodeBurnBatches(t.input);
+        if (!batches) continue;
+  
+        burnsAll.push({
+          hash: t.hash,
+          ts: t.ts,
+          batches,
+          xen: batches * XEN_PER_BATCH
+        });
       }
-
-      document.getElementById("totXen").textContent = "—"; // we’ll make exact next
-      document.getElementById("totDxn").textContent = "—";
-      document.getElementById("totEth").textContent = fmtETH6(totalEthWei) + " " + (cfg().nativeSymbol || "ETH");
-
-      if (!burns.length) {
-        rowsEl.innerHTML = `<div class="calloutBig"><div class="line"><span class="v">No recent DBXEN txs found.</span></div></div>`;
-        status.textContent = "Loaded";
-        return;
+  
+      // newest first (Moralis already DESC, but keep safe)
+      burnsAll.sort((a,b) => String(b.ts).localeCompare(String(a.ts)));
+  
+      // totals
+      const totalBatches = burnsAll.reduce((sum, it) => sum + it.batches, 0);
+      const totalXen = totalBatches * XEN_PER_BATCH;
+  
+      document.getElementById("totXen").textContent = fmtNum(totalXen);
+  
+      // total DXN claimed (token transfers IN to user, token == DXN_ADDRESS)
+      let dxnWei = 0n;
+      for (const t of erc20){
+        if (!t?.token_address) continue;
+        if (String(t.token_address).toLowerCase() !== String(DXN_ADDRESS).toLowerCase()) continue;
+        if (!t?.to) continue;
+        if (String(t.to).toLowerCase() !== String(userAddress).toLowerCase()) continue;
+        dxnWei += BigInt(t.value || "0");
       }
-
-      rowsEl.innerHTML = burns.map(tx => `
-        <div class="calloutBig">
-          <div class="line" style="justify-content:space-between;">
-            <span class="k">${dayTimeFromIso(tx.ts)}</span>
-            <a class="mono" style="color:var(--yellow); text-decoration:none;"
-              href="${cfg().blockExplorerUrls[0]}/tx/${tx.hash}"
-              target="_blank" rel="noreferrer">View tx</a>
-          </div>
-          <div class="line">
-            <span class="v">Value:</span>
-            <span class="pct warn">${fmtETH6(BigInt(tx.value || "0"))} ${cfg().nativeSymbol || "ETH"}</span>
-          </div>
-        </div>
-      `).join("");
-
+      document.getElementById("totDxn").textContent = fmtDXN6(dxnWei);
+  
+      // ETH claimed: keep placeholder for now
+      document.getElementById("totEth").textContent = "—";
+  
+      // pagination for Burn History card
+      const start = (__burnPage - 1) * __burnPageSize;
+      const pageRows = burnsAll.slice(start, start + __burnPageSize);
+  
+      renderBurnRows(pageRows);
+      if (pageLabel) pageLabel.textContent = `Page ${__burnPage}`;
+  
       status.textContent = "Loaded";
-    } catch (e) {
+    }catch(e){
       console.log(e);
-      status.textContent = "Error loading history";
-      rowsEl.innerHTML = "";
+      status.textContent = "Error loading (check console)";
     }
   }
+
 
   // Wire buttons (no paging yet)
   document.getElementById("loadHistoryBtn")?.addEventListener("click", async () => {
