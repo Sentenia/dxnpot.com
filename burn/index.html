@@ -1450,7 +1450,7 @@
     if (!wrap) return;
   
     if (!rows || rows.length === 0){
-      wrap.innerHTML = `<div class="calloutBig"><div class="line"><span class="v">No burnBatch txns found.</span></div></div>`;
+      wrap.innerHTML = `<div class="calloutBig"><div class="line"><span class="v">No XEN burns found for this wallet.</span></div></div>`;
       return;
     }
   
@@ -1459,7 +1459,7 @@
         <div class="line" style="justify-content:space-between;">
           <span class="k">${(r.ts || "").replace("T"," ").replace(".000Z"," UTC")}</span>
           <a class="mono" style="color:var(--yellow); text-decoration:none;"
-             href="https://etherscan.io/tx/${r.hash}" target="_blank" rel="noreferrer">View tx</a>
+             href="${r.url || `https://etherscan.io/tx/${r.hash}`}" target="_blank" rel="noreferrer">View tx</a>
         </div>
         <div class="line" style="gap:14px;">
           <span class="v">Batches:</span> <span class="pct warn">${fmtNum(r.batches)}</span>
@@ -1474,103 +1474,95 @@
   async function loadHistory(){
     const status = document.getElementById("historyStatus");
     const pageLabelEl = document.getElementById("pageLabel");
+  
+    const norm = (a) => String(a || "").toLowerCase();
+    const ZERO_ADDR = "0x0000000000000000000000000000000000000000";
+  
+    function pickTs(x){
+      return x?.block_timestamp || x?.blockTimestamp || x?.timestamp || x?.ts || x?.block_time || "";
+    }
+  
+    function txLink(hash){
+      const base = (cfg()?.blockExplorerUrls?.[0] || "https://etherscan.io").replace(/\/$/, "");
+      return `${base}/tx/${hash}`;
+    }
+  
     status.textContent = "Loading…";
   
     try {
       if (!userAddress) throw new Error("no_wallet");
   
-      // call your Vercel API
-      const url = `https://dxnpot-api.vercel.app/api/history?chain=eth&address=${encodeURIComponent(userAddress)}`;
+      // ✅ use active chain, not hardcoded eth
+      const chainKey = apiChainKey();
+      const url = `${HISTORY_API_BASE}/api/history?chain=${encodeURIComponent(chainKey)}&address=${encodeURIComponent(userAddress)}`;
       const r = await fetch(url);
       const data = await r.json();
   
-      if (!data || data.ok !== true) {
-        console.log("history api bad:", data);
-        throw new Error("history api failed");
-      }
+      if (!data || data.ok !== true) throw new Error("history api failed");
   
-      // ✅ Your API returns txs + erc20
-      const txs = Array.isArray(data.txs) ? data.txs : [];
       const erc20 = Array.isArray(data.erc20) ? data.erc20 : [];
   
-      console.log("TX[0] raw:", txs[0]);
-      console.log("DBXEN_ADDRESS", DBXEN_ADDRESS);
+      const user = norm(userAddress);
+      const xenToken = norm(XEN_ADDRESS);
+      const dxnToken = norm(DXN_ADDRESS);
+      const dbxen = norm(DBXEN_ADDRESS);
   
-      // --- burnBatch selector ---
-      const BURN_METHOD_ID = "0x037c5414";
-      function decodeBurnBatches(inputHex){
-        try{
-          const input = String(inputHex || "");
-          if (!input || input.length < 10) return null;
-          if (!input.startsWith(BURN_METHOD_ID)) return null;
-          const argData = "0x" + input.slice(10);
-          const [b] = ethers.AbiCoder.defaultAbiCoder().decode(["uint256"], argData);
-          return Number(b);
-        }catch{
-          return null;
-        }
-      }
+      // ✅ burns = XEN token transfer user -> ZERO
+      const burnsAll = erc20
+        .filter(t =>
+          norm(t.token_address || t.address) === xenToken &&
+          norm(t.from_address || t.from) === user &&
+          norm(t.to_address || t.to) === norm(ZERO_ADDR) &&
+          BigInt(t.value || "0") > 0n
+        )
+        .map(t => {
+          const burnedWei = BigInt(t.value || "0");
+          // XEN is 18 decimals
+          const burnedXenStr = ethers.formatUnits(burnedWei, 18); // string
+          const burnedXen = Number(burnedXenStr); // ok for your UI totals
+          const batches = Math.floor(burnedXen / XEN_PER_BATCH);
   
-      // ✅ Find burns for THIS wallet only (txs sent to DBXEN with burnBatch selector)
-      const dbx = String(DBXEN_ADDRESS || "").toLowerCase();
-      const burnsAll = [];
+          return {
+            hash: t.transaction_hash,
+            ts: pickTs(t),
+            batches,
+            xen: Math.floor(burnedXen) // integer display
+          };
+        })
+        .sort((a,b) => String(pickTs(b)).localeCompare(String(pickTs(a))));
   
-      for (const t of txs) {
-        const to = String(t.to || t.to_address || "").toLowerCase();
-        const input = String(t.input || "");
-  
-        if (!to || to !== dbx) continue;
-        if (!input.startsWith(BURN_METHOD_ID)) continue;
-  
-        const batches = decodeBurnBatches(input);
-        if (!batches) continue;
-  
-        burnsAll.push({
-          hash: t.hash,
-          ts: t.ts,
-          batches,
-          xen: batches * XEN_PER_BATCH
-        });
-      }
-  
-      // newest first
-      burnsAll.sort((a,b) => String(b.ts).localeCompare(String(a.ts)));
-  
-      console.log("burnsAll length:", burnsAll.length, burnsAll.slice(0, 5));
-  
-      // ✅ Totals: XEN burned
-      const totalBatches = burnsAll.reduce((s, r) => s + (r.batches || 0), 0);
-      const totalXen = totalBatches * XEN_PER_BATCH;
+      // ✅ totals
+      const totalXen = burnsAll.reduce((s, r) => s + (r.xen || 0), 0);
       document.getElementById("totXen").textContent = fmtNum(totalXen);
   
-      // ✅ Totals: DXN claimed (only DXN transfers FROM DBXEN -> user)
+      // ✅ dxn claimed = DXN transfer DBXEN -> user
       let dxnWei = 0n;
       for (const t of erc20){
-        const token = String(t.token_address || t.address || "").toLowerCase();
-        const to = String(t.to || t.to_address || "").toLowerCase();
-        const from = String(t.from || t.from_address || "").toLowerCase();
-  
-        if (!token || token !== String(DXN_ADDRESS).toLowerCase()) continue;
-        if (!to || to !== String(userAddress).toLowerCase()) continue;
-        if (!from || from !== String(DBXEN_ADDRESS).toLowerCase()) continue;
-  
+        const token = norm(t.token_address || t.address);
+        const to = norm(t.to_address || t.to);
+        const from = norm(t.from_address || t.from);
+        if (token !== dxnToken) continue;
+        if (to !== user) continue;
+        if (from !== dbxen) continue;
         dxnWei += BigInt(t.value || "0");
       }
       document.getElementById("totDxn").textContent = fmtDXN6(dxnWei);
   
-      // ✅ Totals: ETH claimed (leave placeholder for now)
+      // leave ETH claimed placeholder for now
       document.getElementById("totEth").textContent = "—";
   
-      // ✅ Page rows
+      // ✅ pagination
       const startIdx = (__burnPage - 1) * __burnPageSize;
       const pageRows = burnsAll.slice(startIdx, startIdx + __burnPageSize);
   
-      renderBurnRows(pageRows);
-      if (pageLabelEl) pageLabelEl.textContent = `Page ${__burnPage}`;
+      // small improvement: renderBurnRows uses etherscan hardcoded; patch links here by injecting url
+      const rowsWithUrl = pageRows.map(r => ({ ...r, url: txLink(r.hash) }));
+      renderBurnRows(rowsWithUrl);
   
+      if (pageLabelEl) pageLabelEl.textContent = `Page ${__burnPage}`;
       status.textContent = "Loaded";
     } catch (e) {
-      console.log(e);
+      console.log("loadHistory error:", e);
       status.textContent = "Error loading (check console)";
     }
   }
