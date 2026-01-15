@@ -1445,6 +1445,30 @@
   let __burnPage = 1;
   const __burnPageSize = 10;
 
+  function renderBurnRows(rows){
+    const wrap = document.getElementById("burnRows");
+    if (!wrap) return;
+  
+    if (!rows || rows.length === 0){
+      wrap.innerHTML = `<div class="calloutBig"><div class="line"><span class="v">No burnBatch txns found.</span></div></div>`;
+      return;
+    }
+  
+    wrap.innerHTML = rows.map(r => `
+      <div class="calloutBig">
+        <div class="line" style="justify-content:space-between;">
+          <span class="k">${(r.ts || "").replace("T"," ").replace(".000Z"," UTC")}</span>
+          <a class="mono" style="color:var(--yellow); text-decoration:none;"
+             href="https://etherscan.io/tx/${r.hash}" target="_blank" rel="noreferrer">View tx</a>
+        </div>
+        <div class="line" style="gap:14px;">
+          <span class="v">Batches:</span> <span class="pct warn">${fmtNum(r.batches)}</span>
+          <span class="v">XEN:</span> <span class="pct warn">${fmtNum(r.xen)}</span>
+        </div>
+      </div>
+    `).join("");
+  }
+
   async function loadHistory(){
     const status = document.getElementById("historyStatus");
     const pageLabel = document.getElementById("pageLabel");
