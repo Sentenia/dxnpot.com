@@ -2069,75 +2069,90 @@
     return BigInt(hex);
   }
 
+  // --- stake helpers + handlers (REPLACE YOUR WHOLE BLOCK WITH THIS) ---
+
+  function fmt6(x){
+    const s = String(x || "");
+    const [i, d=""] = s.split(".");
+    return d ? `${i}.${d.slice(0,6)}` : i;
+  }
+  
   function parseDxnAmount(v) {
     const s = String(v || "").trim();
-    if (!s) return 0n;
+  
+    // treat blank or 0/0.0/0.000... as empty
+    if (!s || /^0(\.0+)?$/.test(s)) return 0n;
+  
     return ethers.parseUnits(s, 18);
   }
-
+  
   const stakeBtn = document.getElementById("stakeBtn");
   const unstakeBtn = document.getElementById("unstakeBtn");
   const stakeAmt = document.getElementById("stakeAmt");
-
+  
   if (stakeBtn) {
     stakeBtn.addEventListener("click", async (e) => {
       e.preventDefault();
       if (!signer) return;
-
+  
       try {
         const amtWei = parseDxnAmount(stakeAmt.value);
+  
+        // 1st click (or if field is 0/blank): autofill max wallet DXN (6 decimals)
         if (amtWei <= 0n) {
           const fill = __dxnWalletWei;
-          stakeAmt.value = fill > 0n ? ethers.formatUnits(fill, 18) : "";
+          stakeAmt.value = fill > 0n ? fmt6(ethers.formatUnits(fill, 18)) : "";
           return;
         }
-
+  
         const dxn = new ethers.Contract(DXN_ADDRESS, ERC20_ABI, signer);
         const allowance = await dxn.allowance(userAddress, DBXEN_ADDRESS);
-
+  
         if (allowance < amtWei) {
           const MAX = (2n ** 256n) - 1n;
           const txA = await dxn.approve(DBXEN_ADDRESS, MAX);
           await txA.wait();
         }
-
+  
         const gasPrice = await getLegacyGasPriceWei();
         const dbxen = new ethers.Contract(DBXEN_ADDRESS, DBXEN_ABI, signer);
-
+  
         const tx = await dbxen.stake(amtWei, {
           gasPrice,
           type: 0,
           gasLimit: 250000n
         });
-
+  
         await tx.wait();
         await loadStakeInfo();
-
+  
       } catch (err) {
         console.log("STAKE ERROR:", err);
       }
     });
   }
-
+  
   if (unstakeBtn) {
     unstakeBtn.addEventListener("click", async (e) => {
       e.preventDefault();
       if (!signer) return;
-
+  
       try {
         const amtWei = parseDxnAmount(stakeAmt.value);
+  
+        // 1st click (or if field is 0/blank): autofill max withdrawable (6 decimals)
         if (amtWei <= 0n) {
           const fill = __dxnWithdrawableWei;
-          stakeAmt.value = fill > 0n ? ethers.formatUnits(fill, 18) : "";
+          stakeAmt.value = fill > 0n ? fmt6(ethers.formatUnits(fill, 18)) : "";
           return;
         }
-
+  
         const gasPrice = await getLegacyGasPriceWei();
         const dbxen = new ethers.Contract(DBXEN_ADDRESS, DBXEN_ABI, signer);
-
+  
         const tx = await dbxen.unstake(amtWei, { gasPrice, type: 0 });
         await tx.wait();
-
+  
         await loadStakeInfo();
       } catch (err) {
         console.log("UNSTAKE ERROR:", err);
