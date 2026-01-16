@@ -38,12 +38,15 @@
     html,body{ height:100%; }
 
     body{
-      margin:0;
-      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--txt);
-      background: url("/dxn-bg.png") center / cover no-repeat fixed;
-      padding: 22px;
-    }
+  margin:0;
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 16px;           /* NEW */
+  line-height: 1.45;         /* NEW */
+  color: var(--txt);
+  background: url("/dxn-bg.png") center / cover no-repeat fixed;
+  padding: 12px;
+}
+
 
     /* subtle top glow */
     body:before{
@@ -57,18 +60,20 @@
     }
 
     .frame{
-      width: min(1440px, calc(100vw - 44px));
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 20px;
-      border-radius: 26px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(2,6,23,.38);
-      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.03);
-      backdrop-filter: blur(12px);
-      overflow: hidden;
-      position: relative;
+    width: calc(100vw - 24px);   /* was 44px */
+    max-width: 1700px;          /* was 1440px */
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 26px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(2,6,23,.38);
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.03);
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+    position: relative;
     }
+    
+
     .frame::after{
       content:"";
       position:absolute;
@@ -94,11 +99,12 @@
     }
 
     .tabs{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      .tabs{ flex-wrap:wrap; }
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
     }
+
 
     .tab{
       display:inline-flex;
@@ -156,10 +162,16 @@
       height: 40px;
       box-shadow: 0 10px 22px rgba(250,204,21,.18);
       transition: transform .12s ease, box-shadow .12s ease, filter .12s ease, opacity .12s ease;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: geometricPrecision;
+        font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
     .btn-yellow:hover{ transform: translateY(-1px); filter: brightness(1.02); }
     .btn-yellow:active{ transform: translateY(0px); filter: brightness(.98); }
     .btn-yellow[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
+
 
     /* cards */
     .card{
@@ -171,6 +183,123 @@
       position: relative;
       z-index: 1;
     }
+
+    /* ETH / Staking aura (cool complement to gold) */
+    .eth-card{
+    border-color: rgba(34,211,238,.32);
+    box-shadow:
+        0 18px 60px rgba(0,0,0,.55),
+        0 0 0 1px rgba(34,211,238,.28),
+        inset 0 0 40px rgba(34,211,238,.10);
+    }
+
+    .eth-card::before{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    border-radius: inherit;
+    pointer-events:none;
+    background:
+        radial-gradient(
+        520px 240px at 30% -10%,
+        rgba(34,211,238,.35),
+        transparent 70%
+        );
+    opacity:.9;
+    }
+
+    /* ETH-highlighted numbers */
+    .eth-card .prize,
+    .eth-card .stats b{
+    color:#67e8f9;
+    text-shadow:
+        0 0 18px rgba(34,211,238,.35),
+        0 10px 30px rgba(0,0,0,.6);
+    }
+
+
+    /* GOLD AURA — for DXN GOLD related cards */
+    .gold-card{
+      border-color: rgba(250, 204, 21, 0.28);
+      box-shadow:
+        0 18px 60px rgba(0,0,0,.55),
+        0 0 0 1px rgba(250,204,21,.22),
+        inset 0 0 40px rgba(250,204,21,.10);
+    }
+
+    .gold-card::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius: inherit;
+      pointer-events:none;
+      background:
+        radial-gradient(
+          500px 220px at 30% -10%,
+          rgba(250,204,21,.22),
+          transparent 70%
+        );
+      opacity:.85;
+    }
+
+    .gold-card .sub b{
+  color: var(--yellow);
+  font-weight: 900;
+  text-shadow: 0 0 10px rgba(250,204,21,.25);
+}
+
+
+    /* BURN AURA — for Buy & Burn card */
+    .burn-card{
+    border-color: rgba(251, 146, 60, .35); /* orange */
+    box-shadow:
+        0 18px 60px rgba(0,0,0,.55),
+        0 0 0 1px rgba(251,146,60,.30),
+        inset 0 0 40px rgba(251,146,60,.12);
+    }
+
+    .burn-card::before{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    border-radius: inherit;
+    pointer-events:none;
+    background:
+        radial-gradient(
+        520px 240px at 30% -10%,
+        rgba(251,146,60,.35),
+        transparent 70%
+        ),
+        radial-gradient(
+        420px 220px at 80% 60%,
+        rgba(239,68,68,.25),
+        transparent 70%
+        );
+    opacity:.9;
+    }
+
+    /* make key numbers glow slightly */
+    .burn-card .stats b{
+    color: #fb923c;
+    text-shadow:
+        0 0 18px rgba(251,146,60,.35),
+        0 10px 30px rgba(0,0,0,.6);
+    }
+
+
+    .gold-card .prize{
+      text-shadow:
+        0 10px 30px rgba(0,0,0,.6),
+        0 0 18px rgba(250,204,21,.25);
+    }
+
+    .gold-card .prizeLabel,
+    .gold-card .label{
+      color: rgba(250,204,21,.85);
+    }
+
+
+
 
     /* HERO cards */
     .hero{
@@ -192,7 +321,7 @@
 
     .title{
       margin:0;
-      font-size: 26px;
+      font-size: 30px;
       font-weight: 900;
       letter-spacing: -0.3px;
       line-height: 1.1;
@@ -202,7 +331,7 @@
       margin-top: 8px;
       color: var(--muted);
       font-weight: 600;
-      font-size: 14px;
+      font-size: 16px;
     }
 
     /* Big number aesthetic */
@@ -220,6 +349,8 @@
       letter-spacing: .04em;
       text-shadow: 0 10px 30px rgba(0,0,0,.55);
       filter: drop-shadow(0 10px 22px rgba(0,0,0,.35));
+      overflow-wrap: anywhere;
+        word-break: break-word;
     }
 
     .prizeLabel{
@@ -263,15 +394,71 @@
         margin-top: 28px; /* alignment knob */
         }
 
-        /* label next to number (matches your current aesthetic) */
-        .prizeLabel{
-        font-size: 14px;
-        font-weight: 800;
-        color: var(--muted2);
-        letter-spacing: .25px;
-        align-self: baseline;
-        margin-left: 6px;
-        }
+      
+    /* segmented toggle */
+    .segWrap{
+      position:relative;
+      width: 260px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(2,6,23,.36);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+      display:flex;
+      overflow:hidden;
+    }
+
+    .segBtn{
+      flex:1;
+      border:0;
+      background:transparent;
+      color: var(--muted);
+      font-weight: 900;
+      cursor:pointer;
+      z-index:2;
+    }
+
+    .segBtn.active{ color:#000; }
+
+    .segPill{
+      position:absolute;
+      top:4px; bottom:4px;
+      left:4px;
+      width: calc(50% - 8px);
+      border-radius: 12px;
+      background: linear-gradient(180deg, var(--yellow), var(--yellow2));
+      box-shadow: 0 10px 22px rgba(250,204,21,.18);
+      transition: transform .16s ease;
+      z-index:1;
+    }
+    .segWrap.is-unstake .segPill{ transform: translateX(100%); }
+
+    /* input with max button inside */
+    .inputWrap{
+      position:relative;
+      width: min(420px, 100%);
+    }
+
+    .inputWrap .input{
+      width:100%;
+      padding-right: 70px; /* space for MAX */
+    }
+
+    .maxBtn{
+      position:absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      height: 30px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(2,6,23,.45);
+      color: var(--txt);
+      font-weight: 900;
+      cursor:pointer;
+    }
+    .maxBtn:hover{ border-color: rgba(250,204,21,.25); }
 
 
     .fine{
@@ -292,13 +479,14 @@
 
     .heroGrid{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap:14px;
       margin-top:14px;
     }
-    @media (max-width: 960px){
+    @media (max-width: 1100px){
       .heroGrid{ grid-template-columns: 1fr; }
     }
+
 
     .pageTitle{
       text-align:center;
@@ -350,18 +538,147 @@
     }
 
     .label{
-      font-size: 14px;
-      font-weight: 900;
-      letter-spacing:.2px;
-      margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: .3px;
     }
-
     .row{
       display:flex;
       align-items:center;
       gap: 10px;
       flex-wrap:wrap;
     }
+
+    /* minihero: same card, smaller hero layout */
+    .card.minihero{
+      padding:18px 18px 16px;
+    }
+
+    /* header row (like heroHead but tighter) */
+    .miniHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:14px;
+    }
+
+    .miniTitle{
+      font-size:18px;
+      margin:0;
+    }
+
+    /* Totals: ETH-side tiles */
+    .miniTile.eth-side{
+    border-color: rgba(34,211,238,.28);
+    box-shadow:
+        inset 0 0 0 1px rgba(34,211,238,.18),
+        inset 0 0 30px rgba(34,211,238,.08);
+    }
+
+    .miniTile.eth-side .miniV{
+    color:#67e8f9;
+    text-shadow: 0 0 16px rgba(34,211,238,.28);
+    }
+
+    /* Totals: GOLD-side tiles */
+    .miniTile.gold-side{
+    border-color: rgba(250,204,21,.28);
+    box-shadow:
+        inset 0 0 0 1px rgba(250,204,21,.18),
+        inset 0 0 30px rgba(250,204,21,.10);
+    }
+
+    .miniTile.gold-side .miniV{
+    color:var(--yellow);
+    text-shadow: 0 0 16px rgba(250,204,21,.28);
+    }
+
+
+    .miniSub{
+      font-size:12px;
+      opacity:.75;
+      margin-top:4px;
+    }
+
+    /* smaller button */
+    .miniBtn{
+      padding:10px 14px;
+      border-radius:14px;
+      font-size:12px;
+      letter-spacing:.06em;
+    }
+
+    /* number row */
+    .miniValueRow{
+      display:flex;
+      align-items:flex-end;
+      gap:10px;
+      margin-top:6px;
+    }
+
+    .miniValue{
+      font-size:44px;   /* big but not hero-big */
+      line-height:1;
+      letter-spacing:.06em;
+    }
+
+    .miniUnit{
+      font-size:12px;
+      opacity:.75;
+      padding-bottom:6px;
+    }
+
+    /* keep stats subtle */
+    .miniStats{
+      margin-top:12px;
+      opacity:.9;
+    }
+
+    .miniStats .line{
+      padding:8px 0;
+    }
+
+    .totalsGrid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 1100px){
+  .totalsGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 560px){
+  .totalsGrid{ grid-template-columns: 1fr; }
+}
+
+.miniTile{
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(2,6,23,.28);
+  border-radius: 16px;
+  padding: 14px 14px 12px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+}
+
+.miniK{
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted2);
+}
+
+.miniV{
+  margin-top: 10px;
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  line-height: 1;
+  color: var(--yellow);
+  text-shadow: 0 0 18px rgba(250,204,21,.18);
+}
+
+
 
     .input{
       width: 170px;
@@ -390,7 +707,7 @@
       display:flex;
       flex-direction:column;
       gap: 10px;
-      font-size: 14px;
+      font-size: 15.5px;
       color: var(--muted);
       font-weight: 650;
     }
@@ -402,7 +719,11 @@
       padding-bottom: 8px;
     }
     .stats .line:last-child{ border-bottom:0; padding-bottom:0; }
-    .stats b{ color: var(--yellow); font-weight: 900; }
+    .stats b{ 
+        color: var(--yellow); 
+        font-weight: 900; 
+        font-size: 16px;
+    }
 
     .lastRow{
       margin-top: 14px;
@@ -412,6 +733,72 @@
       position: relative;
       z-index: 1;
     }
+
+    /* Bottom row: Stake + Buy&Burn */
+    .bottomGrid{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap:14px;
+    align-items:stretch;
+    }
+
+    @media (max-width: 1100px){
+    .bottomGrid{ grid-template-columns:1fr; }
+    }
+
+    /* Make both cards truly fill their grid cell */
+    .bottomGrid > .card{
+    width:100%;
+    min-width:0;
+    }
+
+    /* --- Buy & Burn header --- */
+    .burnHead{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    width:100%;
+    }
+
+    /* Keep the execute button from squeezing weirdly */
+    .burnHead .btn-yellow{
+    flex: 0 0 auto;
+    white-space:nowrap;
+    }
+
+    /* Make inner rows use full width */
+    .stakeCard .row,
+    .burnCard .row{
+    width:100%;
+    }
+
+    /* Dropdown */
+    .dropToggle{
+    width:100%;
+    margin-top:14px;
+    height:44px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(2,6,23,.30);
+    color: var(--txt);
+    font-weight: 850;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 0 12px;
+    cursor:pointer;
+    }
+    .dropToggle:hover{ border-color: rgba(250,204,21,.25); }
+
+    .dropPanel{
+    margin-top:10px;
+    padding-top:10px;
+    border-top: 1px dashed rgba(255,255,255,.07);
+    }
+
+
 
     /* footer */
     .footer{
@@ -527,6 +914,99 @@
       font-weight:900;
       font-size:12px;
     }
+
+    /* ===== Bigger card titles + subtext ===== */
+
+    /* Card titles */
+    .card .label{
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: .3px;
+    }
+
+    /* Card subtitles */
+    .card .sub{
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--muted);
+    }
+
+    /* Hero titles (top cards) */
+    .hero .title{
+    font-size: 30px;
+    }
+
+    /* Hero sublines */
+    .hero .sub{
+    font-size: 18px;
+    }
+
+    /* Stats labels inside cards */
+    .stats .line span{
+    font-size: 14.5px;
+    }
+
+    /* Fine print (dropdown explanations, notes) */
+    .fine{
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--muted2);
+    font-weight: 600;
+    }
+
+    @media (max-width: 600px){
+        body{ padding: 10px; }
+        .frame{
+            width: calc(100vw - 20px);
+            padding: 14px;
+            border-radius: 18px;
+        }
+        }
+
+    @media (max-width: 600px){
+    body{ font-size: 15px; }
+    .pageTitle{ font-size: 26px; }
+    .hero .title{ font-size: 22px !important; }
+    .sub{ font-size: 14px; }
+    .label{ font-size: 16px; }
+    .fine{ font-size: 13.5px; }
+    }
+
+    @media (max-width: 600px){
+    .prize{ font-size: 40px; }
+    }
+
+    @media (max-width: 600px){
+    .heroGrid{ gap: 12px; }
+    .below{ gap: 12px; }
+    .bottomGrid{ gap: 12px; }
+    }
+
+    @media (max-width: 600px){
+    .heroHead,
+    .burnHead,
+    .miniHead{
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-runlottery,
+    .burnHead .btn-yellow,
+    .miniBtn{
+        width: 100%;
+        min-width: 0 !important;
+    }
+    }
+
+    @media (max-width: 600px){
+    .inputWrap{ width: 100%; }
+    .row{ flex-direction: column; align-items: stretch; }
+    .input{ width: 100%; }
+    #stakeBtn{ width: 100%; min-width: 0 !important; }
+    }
+
+
+
   </style>
 </head>
 
@@ -563,25 +1043,42 @@
 
     <div class="pageTitle">DXN POT — COMMUNITY POOL</div>
 
-    <div class="subline">
-      <div>Current Cycle: <b id="currentCycle">—</b></div>
-      <div>Last Draw: <b id="lastDrawCycle">—</b></div>
-
-      <div class="countdownMini">
-        <span class="k">NEXT DRAW IN</span>
-        <span id="nextDraw" class="v mono">—</span>
-      </div>
+    <div class="subline" style="gap:12px;">
+    <div class="countdownMini">
+        <span class="k">EPOCH</span>
+        <span id="hbEpoch" class="v mono">—</span>
     </div>
+
+    <div class="countdownMini">
+        <span class="k">ELIGIBLE ETH</span>
+        <span id="hbEligibleEth" class="v mono">—</span>
+    </div>
+
+    <div class="countdownMini">
+        <span class="k">NEXT FEE CLAIM IN</span>
+        <span id="hbNextFeeClaim" class="v mono">—</span>
+    </div>
+    </div>
+
 
     <div class="heroGrid">
 
     <!-- LEFT HERO -->
-    <div class="card hero hero-left">
+    <div class="card hero eth-card">
     <div class="heroHead">
         <div>
         <h2 class="title" style="font-size:22px;margin:0;">ETH Fees</h2>
         <div class="sub">Total ETH to be paid to random winner</div>
+
+        <div class="fine" style="margin-top:10px;">
+        Caller earns <b>1 ticket</b> per execution.
+        </div><div class="fine" style="margin-top:10px;">
+        Staker-class earns <b>1 ticket</b> per execution. (After Epoch 25)
         </div>
+
+        </div>
+
+        
 
         <button id="runBtn" class="btn-yellow btn-runlottery">
         EXECUTE FEE DISTRIBUTION
@@ -602,72 +1099,222 @@
         <h2 class="title" style="font-size:22px;">Vault Totals</h2>
         <div class="sub">Staked DXN held by the Pot</div>
 
-        <div class="prizeRow" style="margin-top:18px;">
+        <div class="prizeRow prizeRow-even">
           <div class="prize mono"><span id="potDxn">0.000000</span></div>
           <div class="prizeLabel mono">DXN in pot</div>
         </div>
       </div>
 
+      <!-- DXNPOT TOTALS HERO (Holders / 10% Stream) -->
+      <div class="card hero gold-card">
+        <div class="heroHead">
+          <div>
+            <h2 class="title" style="font-size:22px;margin:0;">DXN GOLD RESERVE</h2>
+            <div class="sub">Total supply of <b>DXN GOLD</b></div>
+          </div>
+        </div>
+
+        <!-- BIG NUMBER -->
+        <div class="prizeRow prizeRow-even">
+          <div class="prize mono"><span id="dxnpotSupply">0.000000</span></div>
+          <div class="prizeLabel mono">TOTAL DXN GOLD MINTED</div>
+        </div>
+
+        <!-- SUPPORTING STATS -->
+        <div class="stats" style="margin-top:18px;">
+          <div class="line"><span>My <b>DXN GOLD</b></span> <b id="myDxnpot" class="mono">—</b></div>
+          <div class="line"><span>My Share</span> <b id="myDxnpotShare" class="mono">— %</b></div>
+          <div class="line"><span>Claimable ETH</span> <b id="holderClaimableEth" class="mono">—</b></div>
+        </div>
+      </div>
     </div>
+
+
+    
 
     <!-- BELOW HERO -->
-    <div class="below">
-      <div class="card">
-        <div class="label">My Position</div>
-        <div class="stats">
-          <div class="line"><span>My Deposit</span> <b id="myDep" class="mono">— DXN</b></div>
-          <div class="line"><span>My Weight</span> <b id="myWeight" class="mono">— %</b></div>
-          <div class="line"><span>Estimated Odds</span> <b id="myOdds" class="mono">— %</b></div>
-        </div>
-      </div>
+<div class="below">
 
-      <div class="card">
-        <div class="label">Deposit DXN</div>
-        <div class="row">
-          <input id="depAmt" class="input mono" placeholder="0.0" />
-          <button id="depBtn" class="btn-yellow" style="height:44px;border-radius:14px;">
-            Deposit &amp; Stake
-          </button>
-        </div>
-        <div class="hint">Deposits activate next cycle.</div>
-      </div>
-
-      <div class="card">
-        <div class="label">Withdraw DXN</div>
-        <div class="row">
-          <input id="wdAmt" class="input mono" placeholder="0.0" />
-          <button id="wdBtn" class="btn-yellow" style="height:44px;border-radius:14px;">
-            Withdraw
-          </button>
-        </div>
-        <div class="hint">Only unlocked DXN is withdrawable.</div>
-      </div>
+  <!-- LEFT (under ETH Fees): -->
+  <div class="card eth-card">
+    <div class="label">My Claimable ETH</div>
+    <div class="stats">
+      <div class="line"><span>DXN Pot Distribution</span> <b id="claimablePotEth" class="mono">—</b></div>
+      <div class="line"><span>DXN Gold Distribution</span> <b id="claimableGoldEth" class="mono">—</b></div>
+      <div class="line"><span>Total</span> <b id="claimableTotalEth" class="mono">—</b></div>
     </div>
-
-    <!-- LAST RESULT -->
-    <div class="lastRow">
-      <div class="card">
-        <div class="label">Last Result</div>
-        <div class="stats">
-          <div class="line"><span>Last Draw Cycle</span> <b id="lastDrawCycle2" class="mono">—</b></div>
-          <div class="line"><span>Winner</span> <b id="lastWinner" class="mono">—</b></div>
-          <div class="line"><span>Payout</span> <b id="lastPayout" class="mono">—</b></div>
-        </div>
-      </div>
+    <div style="margin-top:12px;">
+      <button id="claimAllEthBtn" class="btn-yellow btn-runlottery" style="min-width:180px;">
+        CLAIM ALL ETH
+      </button>
     </div>
-
   </div>
+
+  <!-- MIDDLE -->
+  <div class="card">
+    <div class="label">My Position</div>
+    <div class="stats">
+      <div class="line"><span>My Deposit</span> <b id="myDeposit" class="mono">— DXN</b></div>
+      <div class="line"><span>My Weight</span> <b id="myWeight" class="mono">— %</b></div>
+      <div class="line"><span>Estimated Odds</span> <b id="myOdds" class="mono">— %</b></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="card gold-card">
+    <div class="burnHead">
+      <div>
+        <div class="label" style="margin:0;">Claim DXN GOLD</div>
+        <div class="sub" style="margin-top:6px;">Claim GOLD from past smelts (ticket epochs).</div>
+      </div>
+      <button id="claimGoldBtn" class="btn-yellow" style="min-width:160px;height:44px;border-radius:14px;">
+        CLAIM GOLD
+      </button>
+    </div>
+
+    <div class="stats" style="margin-top:14px;">
+      <div class="line"><span>Claimable GOLD</span> <b id="claimableGold" class="mono">—</b></div>
+      <div class="line"><span>Last Claim</span> <b id="lastGoldClaim" class="mono">—</b></div>
+    </div>
+
+    <div class="fine" style="margin-top:10px;">
+      GOLD is minted only when DXN is burned.
+    </div>
+  </div>
+
+</div> <!-- END .below -->
+
+
+<!-- FULL WIDTH: Stake + Buy & Burn -->
+<div class="bottomGrid">
+
+  <!-- Stake / Unstake -->
+  <div class="card stakeCard eth-card">
+    <div class="label">Stake / Unstake DXN</div><div class="fine" style="margin-top:10px;">
+    Staker-class earns <b>1 ticket</b> per fee execution after EPOCH 25.
+    </div>
+
+
+    <div class="row" style="gap:14px;">
+      <div class="segWrap" id="stakeSeg">
+        <div class="segPill"></div>
+        <button class="segBtn active" id="segStake">Stake</button>
+        <button class="segBtn" id="segUnstake">Unstake</button>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:14px; gap:14px;">
+      <div class="inputWrap">
+        <input id="stakeAmt" class="input" placeholder="0.000000" />
+        <button class="maxBtn" id="maxStakeBtn">MAX</button>
+      </div>
+
+      <button id="stakeBtn" class="btn-yellow" style="min-width:220px;height:44px;border-radius:14px;">
+        STAKE
+      </button>
+    </div>
+
+    <div class="hint">Your DXN total: <b id="dxnWallet" class="mono">—</b></div>
+  </div>
+
+  <!-- Buy & Burn -->
+  <div class="card burnCard burn-card">
+    <div class="burnHead">
+      <div>
+        <div class="label" style="margin:0;">Buy & Burn</div>
+        <div class="sub" style="margin-top:6px;">Uses eligible ETH to buy & burn DXN</div>
+        <div class="fine" style="margin-top:10px;">
+        Caller earns <b>1 ticket</b> per execution.
+        </div>
+      </div>
+
+      <button id="burnBtn" class="btn-yellow" style="min-width:160px;height:44px;border-radius:14px;">
+        EXECUTE BUY & BURN
+      </button>
+    </div>
+
+    <div class="stats" style="margin-top:14px;">
+      <div class="line"><span>Eligible ETH</span> <b id="eligibleBurnEth" class="mono">—</b></div>
+      <div class="line"><span>Estimated DXN Burn</span> <b id="estDxnBurn" class="mono">—</b></div>
+      <div class="line"><span>Gold Mint (est.)</span> <b id="estGoldMint" class="mono">—</b></div>
+    </div>
+
+    <button class="dropToggle" id="donToggle" type="button">
+      <span>Buy & Burn ETH (No Mint)</span>
+      <span class="chev">▾</span>
+    </button>
+
+    <div class="dropPanel" id="donPanel" style="display:none;">
+      <div class="fine" style="margin-bottom:10px;">
+        Donations never mint <b>GOLD</b>. This only burns ETH sent directly to the Buy & Burn.
+      </div>
+
+      <div class="row" style="gap:12px;">
+        <div class="inputWrap" style="max-width:240px;">
+          <input id="donEthAmt" class="input" placeholder="0.00" />
+        </div>
+        <button id="donBurnBtn" class="btn-yellow" style="min-width:160px;height:44px;border-radius:14px;">
+          BURN DONATION ETH
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div> <!-- END .bottomGrid -->
+
+
+<!-- FULL WIDTH: My Totals -->
+<div class="lastRow">
+  <div class="card gold-card">
+    <div class="miniHead" style="margin-bottom:14px;">
+      <div>
+        <div class="label" style="margin:0;">My Totals</div>
+        <div class="sub" style="margin-top:6px;">Lifetime stats for the connected wallet.</div>
+      </div>
+    </div>
+
+    <div class="totalsGrid">
+      <div class="miniTile gold-side">
+        <div class="miniK">TOTAL GOLD EARNED</div>
+        <div class="miniV mono" id="totGold">—</div>
+      </div>
+
+      <div class="miniTile eth-side">
+        <div class="miniK">TOTAL ETH EARNED</div>
+        <div class="miniV mono" id="totEth">—</div>
+      </div>
+
+      <div class="miniTile eth-side">
+        <div class="miniK">FEE CLAIMS CALLED</div>
+        <div class="miniV mono" id="totFeeCalls">—</div>
+      </div>
+
+      <div class="miniTile gold-side">
+        <div class="miniK">BURNS CALLED</div>
+        <div class="miniV mono" id="totBurnCalls">—</div>
+      </div>
+    </div>
+
+    <div class="fine" style="margin-top:12px;">
+      These update from on-chain events (v1 can be rough, later we’ll make it perfect).
+    </div>
+  </div>
+</div>
+
+
 
   <footer class="footer">
     <div class="footer-grid">
 
       <div>
         <h4>How DXN Pot Works</h4>
-        <ol class="steps">
-          <li><b>Burn XEN</b><br><span>Burn XEN to mint DXN.</span></li>
-          <li><b>Earn DXN</b><br><span>DXN minted each cycle.</span></li>
-          <li><b>Stake for Fees</b><br><span>Stake DXN to earn ETH fees.</span></li>
-        </ol>
+            <ol class="steps">
+            <li><b>Stake DXN</b><br><span>Stake DXN to earn a share of ETH fee distributions.</span></li>
+            <li><b>Fee Distribution (24h)</b><br><span>Caller and Staker-class each earns <b>1 ticket</b>. 3.69% to B&B.</span></li>
+            <li><b>Buy &amp; Burn</b><br><span>Caller earns <b>1 ticket</b>. Uses Eligible ETH to buy &amp; burn DXN, minting <b>DXN GOLD</b> 1:1.</span></li>
+            <li><b>Claim</b><br><span>Claim your earned ETH and claimable <b>DXN GOLD</b>.</span></li>
+            </ol>
+
       </div>
 
       <div>
@@ -722,97 +1369,200 @@
   </footer>
 
   <script>
-    // Helpers: safely get/set elements (prevents "Cannot set properties of null")
-    const $ = (id) => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
+  function setText(id, value){
+    const el = $(id);
+    if (el) el.textContent = value;
+  }
 
-    function setText(id, value){
-      const el = $(id);
-      if (el) el.textContent = value;
+  // ===== MOCK STATE (until contracts) =====
+  let __epoch = 12;
+  let __eligibleEth = 0.000000;      // display value
+  let __nextFeeClaimSeconds = 6 * 60 * 60; // countdown seconds
+  let __walletConnected = false;
+
+  // ===== Buttons (your real IDs) =====
+  const connectBtn = $("connectBtn");
+  const runBtn     = $("runBtn");     // EXECUTE FEE DISTRIBUTION
+  const burnBtn    = $("burnBtn");    // EXECUTE BUY & BURN
+  const claimGoldBtn = $("claimGoldBtn");
+  const claimAllEthBtn = $("claimAllEthBtn");
+
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function fmtCountdown(s){
+    if (s <= 0) return "READY";
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = Math.floor(s % 60);
+    return `${pad2(h)}:${pad2(m)}:${pad2(sec)}`;
+  }
+  function setBtnEnabled(btn, enabled){
+    if (!btn) return;
+    btn.disabled = !enabled;
+    btn.style.opacity = enabled ? "1" : "0.55";
+    btn.style.cursor = enabled ? "pointer" : "not-allowed";
+  }
+
+  function refreshHeader(){
+    setText("hbEpoch", String(__epoch));
+    setText("hbEligibleEth", `${__eligibleEth.toFixed(6)} ETH`);
+    setText("hbNextFeeClaim", fmtCountdown(__nextFeeClaimSeconds));
+  }
+
+  function refreshButtons(){
+    const feeReady = __nextFeeClaimSeconds <= 0;
+    const hasEligibleEth = __eligibleEth > 0;
+
+    // Fee distribution: timed
+    setBtnEnabled(runBtn, __walletConnected && feeReady);
+
+    // Buy & Burn: not timed, but requires eligible ETH
+    setBtnEnabled(burnBtn, __walletConnected && hasEligibleEth);
+
+    // Claim buttons: keep disabled in mock unless you want fake values
+    setBtnEnabled(claimGoldBtn, __walletConnected); // or require claimableGold > 0 later
+    setBtnEnabled(claimAllEthBtn, __walletConnected); // or require claimableTotalEth > 0 later
+  }
+
+  function refreshAll(){
+    refreshHeader();
+    refreshButtons();
+  }
+
+  // ===== Demo numbers to make UI look alive =====
+  setText("potEth", "0.00000");
+  setText("potDxn", "0.000000");
+  setText("eligibleBurnEth", "0.000000 ETH");
+  setText("estDxnBurn", "—");
+  setText("estGoldMint", "—");
+
+  // ===== Connect mock =====
+  if (connectBtn){
+    connectBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      __walletConnected = !__walletConnected;
+      setText("addrShort", __walletConnected ? "0xABCD…1234" : "Not connected");
+      setText("ethBal", __walletConnected ? "0.0000 ETH" : "— ETH");
+      connectBtn.textContent = __walletConnected ? "Connected" : "Connect";
+      refreshAll();
+    });
+  }
+
+  // ===== Fee Distribution mock =====
+  if (runBtn){
+    runBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (runBtn.disabled) return;
+
+      alert("Execute Fee Distribution (mock)");
+
+      // Example effect: adds eligible ETH, resets timer
+      __eligibleEth += 0.012345;
+      setText("eligibleBurnEth", `${__eligibleEth.toFixed(6)} ETH`);
+      __nextFeeClaimSeconds = 24 * 60 * 60;
+      refreshAll();
+    });
+  }
+
+  // ===== Buy & Burn mock =====
+  if (burnBtn){
+    burnBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (burnBtn.disabled) return;
+
+      alert("Execute Buy & Burn (mock)");
+
+      // Example effect: consumes eligible ETH, increments epoch
+      __eligibleEth = 0;
+      setText("eligibleBurnEth", "0.000000 ETH");
+      __epoch += 1;
+      refreshAll();
+    });
+  }
+
+  // ===== Donation toggle (your IDs are correct) =====
+  const donToggle = $("donToggle");
+  const donPanel  = $("donPanel");
+  if (donToggle && donPanel){
+    donToggle.addEventListener("click", () => {
+      const open = donPanel.style.display !== "none";
+      donPanel.style.display = open ? "none" : "block";
+      const chev = donToggle.querySelector(".chev");
+      if (chev) chev.textContent = open ? "▾" : "▴";
+    });
+  }
+
+  // ===== Stake toggle (your IDs are correct) =====
+  const segWrap = $("stakeSeg"); // note: your HTML id is stakeSeg
+  const segStake = $("segStake");
+  const segUnstake = $("segUnstake");
+  const stakeBtn = $("stakeBtn");
+
+  function setMode(mode){
+    const isUnstake = mode === "unstake";
+    if (segWrap) segWrap.classList.toggle("is-unstake", isUnstake);
+    if (segStake) segStake.classList.toggle("active", !isUnstake);
+    if (segUnstake) segUnstake.classList.toggle("active", isUnstake);
+    if (stakeBtn) stakeBtn.textContent = isUnstake ? "UNSTAKE" : "STAKE";
+  }
+
+  if (segStake) segStake.addEventListener("click", (e)=>{ e.preventDefault(); setMode("stake"); });
+  if (segUnstake) segUnstake.addEventListener("click", (e)=>{ e.preventDefault(); setMode("unstake"); });
+  setMode("stake");
+
+  // ===== MAX button (your HTML id is maxStakeBtn) =====
+  const maxStakeBtn = $("maxStakeBtn");
+  const stakeAmt = $("stakeAmt");
+  if (maxStakeBtn && stakeAmt){
+    maxStakeBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      stakeAmt.value = "0.000000";
+    });
+  }
+
+  // ===== Footer copy stays (your existing code is fine) =====
+  (function wireFooterCopy(){
+    const toast = $("copyToast");
+    function showToast(msg){
+      if (!toast) return;
+      toast.textContent = msg || "Address copied";
+      toast.style.display = "inline-block";
+      toast.style.opacity = "1";
+      clearTimeout(window.__toastT);
+      window.__toastT = setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => (toast.style.display = "none"), 200);
+      }, 900);
     }
-
-    // VISUAL MOCK ONLY (no contracts yet)
-    const connectBtn = $("connectBtn");
-    const runBtn = $("runBtn");
-    const nextDrawEl = $("nextDraw");
-
-    // Demo values so it looks alive
-    setText("potEth", "0.00000");
-    setText("potDxn", "0.000000");
-    setText("currentCycle", "—");
-    setText("lastDrawCycle", "—");
-    setText("myDep", "— DXN");
-    setText("myWeight", "— %");
-    setText("myOdds", "— %");
-
-    // Fake countdown (placeholder)
-    function startFakeCountdown(seconds){
-      let s = seconds;
-      function tick(){
-        if (!nextDrawEl) return;
-        if (s < 0) s = 0;
-        const h = String(Math.floor(s / 3600)).padStart(2,"0");
-        const m = String(Math.floor((s % 3600) / 60)).padStart(2,"0");
-        const sec = String(s % 60).padStart(2,"0");
-        nextDrawEl.textContent = `${h}:${m}:${sec}`;
-        s--;
+    async function copyText(t){
+      try{
+        await navigator.clipboard.writeText(t);
+        showToast("Address copied");
+      }catch{
+        const ta = document.createElement("textarea");
+        ta.value = t;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast("Address copied");
       }
-      tick();
-      setInterval(tick, 1000);
     }
-    startFakeCountdown(6 * 60 * 60);
-
-    if (connectBtn){
-      connectBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        alert("Wire wallet later. Visual mock first.");
+    document.querySelectorAll(".addrVal[data-copy]").forEach(el => {
+      el.addEventListener("click", () => {
+        const addr = el.getAttribute("data-copy");
+        if (addr) copyText(addr);
       });
-    }
+    });
+  })();
 
-    if (runBtn){
-      runBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        alert("Run Lottery will be wired to contracts later.");
-      });
-    }
-
-    // Footer copy wiring (works even if other ids are missing)
-    (function wireFooterCopy(){
-      const toast = $("copyToast");
-
-      function showToast(msg){
-        if (!toast) return;
-        toast.textContent = msg || "Address copied";
-        toast.style.display = "inline-block";
-        toast.style.opacity = "1";
-        clearTimeout(window.__toastT);
-        window.__toastT = setTimeout(() => {
-          toast.style.opacity = "0";
-          setTimeout(() => (toast.style.display = "none"), 200);
-        }, 900);
-      }
-
-      async function copyText(t){
-        try{
-          await navigator.clipboard.writeText(t);
-          showToast("Address copied");
-        }catch{
-          const ta = document.createElement("textarea");
-          ta.value = t;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          document.body.removeChild(ta);
-          showToast("Address copied");
-        }
-      }
-
-      document.querySelectorAll(".addrVal[data-copy]").forEach(el => {
-        el.addEventListener("click", () => {
-          const addr = el.getAttribute("data-copy");
-          if (addr) copyText(addr);
-        });
-      });
-    })();
-  </script>
+  // Countdown tick (for Next Fee Claim in)
+  refreshAll();
+  setInterval(() => {
+    if (__nextFeeClaimSeconds > 0) __nextFeeClaimSeconds -= 1;
+    refreshHeader();
+    refreshButtons();
+  }, 1000);
+</script>
 </body>
 </html>
