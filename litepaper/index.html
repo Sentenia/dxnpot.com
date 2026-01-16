@@ -34,11 +34,11 @@
     html,body{ height:100%; }
 
     body{
-      margin:0;
-      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--txt);
-      background: url("/dxn-bg.png") center / cover no-repeat fixed;
-      padding: 22px;
+    margin:0;
+    font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--txt);
+    background: url("/dxn-bg.png") center / cover no-repeat fixed;
+    padding: 12px;
     }
 
     body:before{
@@ -55,18 +55,19 @@
 
     /* Frame (same as pot/burn) */
     .frame{
-      width: min(1440px, calc(100vw - 44px));
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 20px;
-      border-radius: 26px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(2,6,23,.38);
-      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.03);
-      backdrop-filter: blur(12px);
-      overflow: hidden;
-      position: relative;
+    width: calc(100vw - 24px);   /* wider */
+    max-width: 1800px;          /* same as pot */
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 26px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(2,6,23,.38);
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.03);
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+    position: relative;
     }
+
     .frame::after{
       content:"";
       position:absolute;
@@ -134,6 +135,8 @@
     margin-bottom: 20px;
     }
 
+    .subTitle b{ color: var(--yellow); font-weight: 900; }
+
 
 
     /* Cards */
@@ -149,11 +152,28 @@
 
     .grid{
     display:grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 14px;
     margin-top: 14px;
-    align-items: start;
     }
+
+    .flowGrid{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    }
+
+    .twoGrid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    }
+
+    @media (max-width: 960px){
+    .flowGrid{ grid-template-columns: 1fr; }
+    .twoGrid{ grid-template-columns: 1fr; }
+    }
+
     .col{
     display:flex;
     flex-direction: column;
@@ -174,21 +194,29 @@
 
 
     .p{
-      margin:0;
-      color: var(--muted);
-        font-size: 25px;
-      line-height: 1.7;
-      font-weight: 600;
+    margin:0;
+    color: var(--muted);
+    font-size: 16px;        /* key fix */
+    line-height: 1.6;
+    font-weight: 600;
+    }
+
+    .p b,
+    .bullets b{
+    color: var(--yellow);
+    font-weight: 900;
+    font-size: 17px;
     }
 
     .bullets{
-      margin:10px 0 0;
-      padding-left: 18px;
-      color: var(--muted);
-      line-height: 1.75;
-      font-weight: 650;
-        font-size: 25px;
+    margin:10px 0 0;
+    padding-left: 18px;
+    color: var(--muted);
+    font-size: 16px;        /* key fix */
+    line-height: 1.7;
+    font-weight: 650;
     }
+
 
     
 .calloutBig{
@@ -275,63 +303,123 @@
     </div>
 
     <div class="pageTitle">Protocol Overview</div>
-    <div class="subTitle">DXNPot is a pooled fee strategy designed for transparent distribution and community-driven buy & burn.</div>
+    <div class="subTitle">Stake DXN to earn fees. Fee Distribution (24h) adds <b>Eligible ETH</b>. Buy &amp; Burn (any time) uses Eligible ETH to burn DXN and mint <b>DXN GOLD</b>.
+</div>
 
     <div class="grid">
 
-        <!-- LEFT COLUMN -->
-        <div class="col">
-            <div class="card">
-            <h3 class="h">What it does</h3>
-            <p class="p">
-                Users pool DXN and participate in fee generation. ETH fees accumulate and are distributed by a public action.
-            </p>
-            <ul class="bullets">
-                <li>Pool + stake flow (DXN)</li>
-                <li>ETH fees accrue over time</li>
-                <li>Community-triggered distribution</li>
-            </ul>
-            </div>
+  <!-- FLOW ROW -->
+  <div class="flowGrid">
 
-            <!-- OPTIONAL: add a second left card to visually balance -->
-            <div class="card">
-            <h3 class="h">Risks &amp; notes</h3>
-            <ul class="bullets">
-                <li>Smart contracts are experimental and may evolve.</li>
-                <li>All interactions are public and on-chain.</li>
-                <li>Users pay gas and should understand Ethereum fees.</li>
-            </ul>
-            </div>
+    <div class="card eth-card">
+      <h3 class="h">1) Stake DXN</h3>
+      <p class="p">Stake to participate in fee distributions.</p>
+      <ul class="bullets">
+        <li>Earn ETH from distributions</li>
+        <li>Your stake determines your weight</li>
+      </ul>
+    </div>
+
+    <div class="card eth-card">
+      <h3 class="h">2) Fee Distribution (24h)</h3>
+      <p class="p">Once per cycle. Public on-chain call.</p>
+      <div class="calloutBig">
+        <div class="line">
+          <span class="k">Caller</span><span class="pct good">+1</span><span class="v">ticket</span>
         </div>
+        <div class="line">
+          <span class="k">Staker-class</span><span class="pct good">+1</span><span class="v">ticket</span>
+        </div>
+        <div class="line">
+          <span class="k">Result</span><span class="v">adds <b>Eligible ETH</b></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card burn-card">
+      <h3 class="h">3) Buy &amp; Burn (any time)</h3>
+      <p class="p">Uses Eligible ETH to buy &amp; burn DXN.</p>
+      <div class="calloutBig">
+        <div class="line">
+          <span class="k">Caller</span><span class="pct warn">+1</span><span class="v">ticket</span>
+        </div>
+        <div class="line">
+          <span class="k">Mint</span><span class="v"><b>DXN GOLD</b> = DXN burned (1:1)</span>
+        </div>
+        <div class="line">
+          <span class="k">Note</span><span class="v">tickets only split GOLD</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BALANCE ROW -->
+  <div class="twoGrid">
+
+    <div class="card gold-card">
+      <h3 class="h">Eligible ETH vs Donations</h3>
+      <p class="p">
+        Only <b>Eligible ETH</b> can mint GOLD (via Buy &amp; Burn).
+        Direct ETH is tracked as <b>Donations</b> and mints <b>0 GOLD</b>.
+      </p>
+      <div class="calloutBig" style="margin-top:14px;">
+        <div class="line">
+          <span class="k">Burn destination</span>
+          <span class="v mono">0x000000000000000000000000000000000000dEaD</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="h">Risks &amp; notes</h3>
+      <ul class="bullets">
+        <li>Smart contracts are experimental and may evolve.</li>
+        <li>All interactions are public and on-chain.</li>
+        <li>Users pay gas and should understand Ethereum fees.</li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
 
         <!-- RIGHT COLUMN -->
-        <div class="col">
+        <div class="card">
+  <h3 class="h">Epoch + Tickets Model</h3>
+  <p class="p">
+    An <b>Epoch</b> runs from one Buy &amp; Burn to the next. <b>Tickets</b> only decide how minted GOLD is split — tickets do not create GOLD.
+  </p>
+
+  <div class="calloutBig">
+    <div class="line">
+      <span class="k">Fee Distribution (24h)</span>
+      <span class="pct good">+1</span>
+      <span class="v">caller ticket · +1 staker-class ticket · adds Eligible ETH</span>
+    </div>
+
+    <div class="line">
+      <span class="k">Buy &amp; Burn (any time)</span>
+      <span class="pct warn">+1</span>
+      <span class="v">caller ticket · burns DXN with Eligible ETH · mints GOLD</span>
+    </div>
+
+    <div class="line">
+      <span class="k">Donations</span>
+      <span class="pct">0</span>
+      <span class="v">never mint GOLD (anti-gaming)</span>
+    </div>
+  </div>
+</div>
+
+
             <div class="card">
-            <h3 class="h">Distribution model</h3>
-            <p class="p">
-                Fee distribution is initiated by an on-chain call. A portion can be routed to community buy &amp; burn.
-            </p>
+            <h3 class="h">Eligible ETH vs Donations</h3>
+<p class="p">
+  Only <b>Eligible ETH</b> can mint GOLD (via Buy &amp; Burn). ETH sent directly is tracked as <b>Donations</b> and mints <b>0 GOLD</b>.
+</p>
 
-            <div class="calloutBig">
-                <div class="line">
-                <span class="k">Execute Fee Distribution</span>
-                <span class="pct good">96.31%</span>
-                <span class="v">to chosen weighted staker</span>
-                </div>
-
-                <div class="line">
-                <span class="k">Buy &amp; Burn</span>
-                <span class="pct warn">3.69%</span>
-                <span class="v">to DXN buy &amp; burn bucket (community callable)</span>
-                </div>
-            </div>
-            </div>
-
-            <div class="card">
-            <h3 class="h">Buy &amp; Burn bucket</h3>
-            <p class="p">
-                ETH set aside for buy &amp; burn is not auto-spent every cycle. It can accumulate, then anyone can trigger a buy &amp; burn to reduce DXN supply.
-            </p>
 
             <div class="calloutBig" style="margin-top:14px;">
                 <div class="line">
